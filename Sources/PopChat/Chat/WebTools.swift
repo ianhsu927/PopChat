@@ -11,10 +11,10 @@ enum SearchEngineChoice: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .duckduckgo: "DuckDuckGo (no key)"
-        case .tavily: "Tavily (API key)"
-        case .brave: "Brave Search (API key)"
-        case .providerNative: "Provider-native (OpenRouter)"
+        case .duckduckgo: L("DuckDuckGo (no key)")
+        case .tavily: L("Tavily (API key)")
+        case .brave: L("Brave Search (API key)")
+        case .providerNative: L("Provider-native (OpenRouter)")
         }
     }
 
@@ -49,9 +49,9 @@ struct WebToolExecutor {
     static func activityLabel(name: String, argumentsJSON: String) -> String {
         let args = decodeArguments(argumentsJSON)
         switch name {
-        case "web_search": return "Searching: \(args["query"] ?? "?")"
-        case "fetch_url": return "Reading: \(args["url"] ?? "?")"
-        default: return "Tool: \(name)"
+        case "web_search": return L("Searching: {0}", args["query"] ?? "?")
+        case "fetch_url": return L("Reading: {0}", args["url"] ?? "?")
+        default: return L("Tool: {0}", name)
         }
     }
 

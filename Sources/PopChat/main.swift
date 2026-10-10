@@ -756,6 +756,36 @@ if CommandLine.arguments.contains("--smoke-chat-search") {
 }
 
 // Update check: version ordering and release decoding (no network).
+// /word dispatch (no GUI, no network): the built-in command resolves like a user
+// shortcut, an empty input expands to a template with the placeholder emptied,
+// a user shortcut with the same name takes precedence, and allCommands surfaces
+// built-ins in the composer's "/" popup.
+if CommandLine.arguments.contains("--smoke-word") {
+    var log = CheckLog()
+    MainActor.assumeIsolated {
+        let store = ShortcutStore()
+        let word = store.match(name: "word")
+        log.check("/word resolves without any stored shortcut", word != nil)
+        log.check("/word is case-insensitive", store.match(name: "WORD") != nil)
+        let expanded = word?.expand(input: "serendipity") ?? ""
+        log.check("the word lands where {input} was", expanded.hasSuffix("\n\nserendipity"),
+              "tail=\(expanded.suffix(24).debugDescription)")
+        log.check("bare /word still expands", !(word?.expand(input: "") ?? "").isEmpty)
+        log.check("allCommands offers the built-in",
+              store.allCommands.contains { $0.name == "word" },
+              "names=\(store.allCommands.map(\.name))")
+
+        // A user shortcut with the same name shadows the built-in.
+        let override = PromptShortcut(id: UUID(), name: "word", template: "OVERRIDE {input}")
+        store.shortcuts.append(override)
+        log.check("a user /word overrides the built-in", store.match(name: "word")?.template == "OVERRIDE {input}")
+        log.check("the shadowed built-in leaves allCommands",
+              !store.allCommands.contains { $0.id == ShortcutStore.builtIns[0].id && $0.template != "OVERRIDE {input}" },
+              "names=\(store.allCommands.map(\.name))")
+    }
+    log.finish()
+}
+
 if CommandLine.arguments.contains("--smoke-update") {
     var log = CheckLog()
 
@@ -826,6 +856,49 @@ if CommandLine.arguments.contains("--smoke-bundles") {
         log.check("\(name) resolved to the in-app copy", loaded.contains(expected),
                   "loaded=\(loaded.filter { $0.hasSuffix(".bundle") }.sorted())")
     }
+    log.finish()
+}
+
+// Localization: the zh-Hans table resolves inside the assembled .app, English
+// falls back through the (empty) en table to the key itself, substitutions
+// fill in order, and an override applies without relaunching. Run from
+// dist/PopChat.app like --smoke-bundles — the tables live in Contents/Resources.
+if CommandLine.arguments.contains("--smoke-l10n") {
+    var log = CheckLog()
+    _ = NSApplication.shared
+    let defaults = UserDefaults.standard
+    let saved = defaults.string(forKey: L10n.languageKey)
+
+    func withLanguage(_ choice: LanguageChoice, _ body: () -> Void) {
+        defaults.set(choice.rawValue, forKey: L10n.languageKey)
+        L10n.resetForTesting()
+        body()
+    }
+
+    withLanguage(.english) {
+        log.check("English resolves to the source literal", L("Send") == "Send",
+                  "got \(L("Send"))")
+    }
+    withLanguage(.simplifiedChinese) {
+        log.check("zh-Hans translates a simple label", L("Send") == "发送",
+                  "got \(L("Send"))")
+        log.check("zh-Hans translates a formatted string",
+                  L("{0} of {1}", "2", "5") == "第 2 条，共 5 条",
+                  "got \(L("{0} of {1}", "2", "5"))")
+        log.check("a key missing from the table falls back to English",
+                  L("PopChat") == "PopChat", "got \(L("PopChat"))")
+        log.check("the system resolver honors the override",
+                  L10n.currentLanguageCode == "zh-Hans",
+                  "got \(L10n.currentLanguageCode)")
+    }
+    withLanguage(.system) {
+        log.check("system resolves to an available table or en",
+                  ["en", "zh-Hans"].contains(L10n.currentLanguageCode),
+                  "got \(L10n.currentLanguageCode)")
+    }
+
+    if let saved { defaults.set(saved, forKey: L10n.languageKey) } else { defaults.removeObject(forKey: L10n.languageKey) }
+    L10n.resetForTesting()
     log.finish()
 }
 
@@ -1720,8 +1793,14 @@ if CommandLine.arguments.contains("--smoke-history") {
 
         func filterField() -> NSTextField? {
             var found: NSTextField?
+            // The rendered placeholder is whatever the UI language resolved to —
+            // match the English constant OR its live translation.
+            let expected = FieldPlaceholder.historySearch
             func walk(_ view: NSView) {
-                if let field = view as? NSTextField, field.placeholderString == "Search chats…" { found = field }
+                if let field = view as? NSTextField,
+                   field.placeholderString == expected || field.placeholderString == L(expected) {
+                    found = field
+                }
                 for sub in view.subviews where found == nil { walk(sub) }
             }
             // Visible windows only: a dismissed popover keeps its window (and
@@ -1796,8 +1875,14 @@ if CommandLine.arguments.contains("--smoke-find") {
 
         func findField(in root: NSView?) -> NSTextField? {
             var found: NSTextField?
+            // Same rule as filterField: the rendered placeholder follows the
+            // UI language, so match the English constant or its translation.
+            let expected = FieldPlaceholder.findInChat
             func walk(_ view: NSView) {
-                if let field = view as? NSTextField, field.placeholderString == "Find in chat" { found = field }
+                if let field = view as? NSTextField,
+                   field.placeholderString == expected || field.placeholderString == L(expected) {
+                    found = field
+                }
                 for sub in view.subviews where found == nil { walk(sub) }
             }
             if let root { walk(root) }

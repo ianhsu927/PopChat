@@ -61,16 +61,16 @@ enum AttachmentLoader {
         let ext = url.pathExtension.lowercased()
 
         guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize else {
-            return .failure(AttachError(message: "\(filename): couldn't read file."))
+            return .failure(AttachError(message: "\(filename): " + L("couldn't read file.")))
         }
         guard size <= maxFileBytes else {
-            return .failure(AttachError(message: "\(filename): too large (\(size / 1_048_576) MB — limit is \(maxFileBytes / 1_048_576) MB)."))
+            return .failure(AttachError(message: "\(filename): " + L("too large ({0} MB — limit is {1} MB).", "\(size / 1_048_576)", "\(maxFileBytes / 1_048_576)")))
         }
 
         do {
             if imageExtensions.contains(ext) {
                 guard let image = NSImage(contentsOf: url) else {
-                    throw AttachError(message: "\(filename): couldn't decode image.")
+                    throw AttachError(message: "\(filename): " + L("couldn't decode image."))
                 }
                 return .success(try encode(image: image, filename: filename))
             }
@@ -105,7 +105,7 @@ enum AttachmentLoader {
 
     private static func encode(image: NSImage, filename: String) throws -> Attachment {
         guard let tiff = image.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else {
-            throw AttachError(message: "\(filename): couldn't read image data.")
+            throw AttachError(message: "\(filename): " + L("couldn't read image data."))
         }
         let width = rep.pixelsWide
         let height = rep.pixelsHigh
@@ -122,17 +122,17 @@ enum AttachmentLoader {
             resized.unlockFocus()
             guard let resizedTiff = resized.tiffRepresentation,
                   let resizedRep = NSBitmapImageRep(data: resizedTiff) else {
-                throw AttachError(message: "\(filename): couldn't downscale image.")
+                throw AttachError(message: "\(filename): " + L("couldn't downscale image."))
             }
             finalRep = resizedRep
-            note = "downscaled to \(Int(targetSize.width))×\(Int(targetSize.height))"
+            note = L("downscaled to {0}×{1}", "\(Int(targetSize.width))", "\(Int(targetSize.height))")
         }
 
         guard let jpeg = finalRep.representation(using: .jpeg, properties: [.compressionFactor: 0.8]) else {
-            throw AttachError(message: "\(filename): couldn't encode image as JPEG.")
+            throw AttachError(message: "\(filename): " + L("couldn't encode image as JPEG."))
         }
         guard jpeg.count <= 10 * 1024 * 1024 else {
-            throw AttachError(message: "\(filename): image still exceeds 10 MB after downscaling.")
+            throw AttachError(message: "\(filename): " + L("image still exceeds 10 MB after downscaling."))
         }
         let dataURL = "data:image/jpeg;base64," + jpeg.base64EncodedString()
         return Attachment(filename: filename, content: .image(dataURL: dataURL), note: note, noteKind: .info)
@@ -142,10 +142,10 @@ enum AttachmentLoader {
 
     private static func loadPDF(url: URL, filename: String) throws -> Attachment {
         guard let document = PDFDocument(url: url) else {
-            throw AttachError(message: "\(filename): couldn't open PDF.")
+            throw AttachError(message: "\(filename): " + L("couldn't open PDF."))
         }
         guard !document.isLocked else {
-            throw AttachError(message: "\(filename): PDF is password-protected.")
+            throw AttachError(message: "\(filename): " + L("PDF is password-protected."))
         }
         let pageCount = document.pageCount
         let usedPages = min(pageCount, maxPDFPages)
@@ -168,7 +168,7 @@ enum AttachmentLoader {
         if text.count < usedPages * 80 {
             notes.append(keepsRaw
                 ? "very little extractable text — likely scanned; needs a model that accepts PDFs directly"
-                : "very little extractable text — likely a scanned PDF; content may be missing")
+                : L("very little extractable text — likely a scanned PDF; content may be missing"))
         }
         if text.count > maxTextChars {
             text = String(text.prefix(maxTextChars))
@@ -185,7 +185,7 @@ enum AttachmentLoader {
                 note: notes.isEmpty ? nil : notes.joined(separator: "; ")
             )
         }
-        notes.append("over \(maxDirectPDFBytes / 1_048_576) MB — sent as extracted text, not the original PDF")
+        notes.append(L("over {0} MB — sent as extracted text, not the original PDF", "\(maxDirectPDFBytes / 1_048_576)"))
         return Attachment(filename: filename, content: .text(text), note: notes.joined(separator: "; "))
     }
 
@@ -205,7 +205,7 @@ enum AttachmentLoader {
         var note: String?
         if text.count > maxTextChars {
             text = String(text.prefix(maxTextChars))
-            note = "truncated at \(maxTextChars) characters"
+            note = L("truncated at {0} characters", "\(maxTextChars)")
         }
         return Attachment(filename: filename, content: .text(text), note: note)
     }

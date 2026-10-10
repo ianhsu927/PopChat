@@ -54,7 +54,7 @@ private struct HintCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("PopChat lives up here")
+            Text(L("PopChat lives up here"))
                 .font(.system(size: 13, weight: .semibold))
 
             VStack(alignment: .leading, spacing: 5) {
@@ -68,12 +68,12 @@ private struct HintCard: View {
                                 RoundedRectangle(cornerRadius: 4)
                                     .strokeBorder(Color.primary.opacity(0.18), lineWidth: 1)
                             )
-                        Text("shows and hides the panel.")
+                        Text(L("shows and hides the panel."))
                             .font(.system(size: 11.5))
                             .foregroundStyle(.secondary)
                     }
                 }
-                Text("There's no Dock icon — click this menu bar icon any time, or right-click it for Settings.")
+                Text(L("There's no Dock icon — click this menu bar icon any time, or right-click it for Settings."))
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -81,7 +81,7 @@ private struct HintCard: View {
 
             HStack {
                 Spacer()
-                Button("Got it", action: dismiss)
+                Button(L("Got it"), action: dismiss)
                     .keyboardShortcut(.defaultAction)
             }
         }

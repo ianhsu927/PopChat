@@ -213,7 +213,7 @@ enum OpenAIChatClient {
             // After maxToolRounds, one final request with tools disabled forces an answer.
             let roundsExhausted = round >= maxToolRounds
             if roundsExhausted {
-                continuation.yield(.activity("Tool-call limit reached (\(maxToolRounds) rounds) — finishing with what was gathered"))
+                continuation.yield(.activity(L("Tool-call limit reached ({0} rounds) — finishing with what was gathered", "\(maxToolRounds)")))
             }
 
             let outcome: RoundOutcome
@@ -261,7 +261,7 @@ enum OpenAIChatClient {
                 ))
                 let result = await executor.execute(name: call.function.name, argumentsJSON: call.function.arguments)
                 if result.hasPrefix("ERROR:") {
-                    continuation.yield(.activity("⚠︎ \(call.function.name) failed: \(result.dropFirst(6).trimmingCharacters(in: .whitespaces))"))
+                    continuation.yield(.activity(L("⚠︎ {0} failed: {1}", call.function.name, String(result.dropFirst(6).trimmingCharacters(in: .whitespaces)))))
                 }
                 messages.append(WireMessage(role: "tool", content: .text(result), toolCallID: call.id))
             }
@@ -376,7 +376,7 @@ enum OpenAIChatClient {
         continuation: AsyncStream<ChatStreamEvent>.Continuation
     ) async throws -> RoundOutcome {
         guard var url = URL(string: config.baseURL) else {
-            throw ClientError(message: "Invalid base URL: \(config.baseURL)")
+            throw ClientError(message: L("Invalid base URL: {0}", config.baseURL))
         }
         url.append(path: "chat/completions")
 
@@ -407,7 +407,7 @@ enum OpenAIChatClient {
 
         let (bytes, response) = try await URLSession.shared.bytes(for: request)
         guard let http = response as? HTTPURLResponse else {
-            throw ClientError(message: "Unexpected response type")
+            throw ClientError(message: L("Unexpected response type"))
         }
         guard http.statusCode == 200 else {
             var errorBody = ""
@@ -416,7 +416,7 @@ enum OpenAIChatClient {
                 if errorBody.count > 2000 { break }
             }
             throw ClientError(
-                message: "HTTP \(http.statusCode) from \(url.host() ?? "?"): \(errorBody.isEmpty ? "no body" : errorBody)",
+                message: L("HTTP {0} from {1}: {2}", "\(http.statusCode)", url.host() ?? "?", errorBody.isEmpty ? L("no body") : errorBody),
                 contentRejection: attributeContentRejection(
                     statusCode: http.statusCode, errorBody: errorBody, messages: messages
                 )

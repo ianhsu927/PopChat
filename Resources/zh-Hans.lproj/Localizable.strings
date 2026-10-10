@@ -1,0 +1,368 @@
+/* PopChat 简体中文翻译表。
+   键 = 源码中的英文原句；值 = 界面文案。占位符 {0} {1} 按序填充。 */
+
+/* MARK: - 菜单栏（AppDelegate） */
+
+"Toggle PopChat" = "显示 / 隐藏 PopChat";
+"Settings…" = "设置…";
+"Quit PopChat" = "退出 PopChat";
+"Update available: {0}…" = "有可用更新：{0}…";
+"Close Window" = "关闭窗口";
+"Edit" = "编辑";
+"Undo" = "撤销";
+"Redo" = "重做";
+"Cut" = "剪切";
+"Copy" = "拷贝";
+"Paste" = "粘贴";
+"Select All" = "全选";
+"PopChat Settings" = "PopChat 设置";
+
+/* MARK: - 首次运行提示（FirstRunHint） */
+
+"PopChat lives up here" = "PopChat 就住在这里";
+"shows and hides the panel." = "显示或隐藏聊天面板。";
+"There's no Dock icon — click this menu bar icon any time, or right-click it for Settings." = "PopChat 没有 Dock 图标——随时点击这个菜单栏图标；右键它可打开设置。";
+"Got it" = "知道了";
+
+/* MARK: - 输入区（ComposerView） */
+
+"Draft" = "草稿";
+"Close editor (⌘E or Esc)" = "关闭编辑器（⌘E 或 Esc）";
+"Expand editor (⌘E)" = "展开编辑器（⌘E）";
+"↩ newline · ⌘↩ send" = "↩ 换行 · ⌘↩ 发送";
+"Attach files (or drag & drop, or paste)" = "附加文件（可拖放或粘贴）";
+"Web access on — model may search and read pages" = "已开启联网：模型可以搜索并读取网页";
+"Web access off" = "已关闭联网";
+"Write a long prompt…" = "写一段长提示词…";
+"Message…  (“/” for shortcuts)" = "输入消息…（输入 “/” 使用快捷指令）";
+"Stop generating" = "停止生成";
+"Send (⌘↩)" = "发送（⌘↩）";
+"Send" = "发送";
+"Dismiss" = "关闭";
+"Remove attachment" = "移除附件";
+"Copy this block" = "拷贝此代码块";
+
+/* 附件提醒（ComposerModel / capabilityNotice） */
+
+"Attachments total ~{0}k tokens — may exceed smaller models' context windows." = "附件合计约 {0}k token——可能超出小上下文模型的窗口。";
+"{0} doesn't accept images — pick another model, or this send will likely be rejected." = "{0} 不支持图片——请换一个模型，否则这次发送很可能被拒绝。";
+"A scanned PDF has no extractable text, and {0} doesn't take PDF files directly — its content can't be sent." = "扫描版 PDF 无法提取文字，而 {0} 又不支持直接接收 PDF 文件——其内容无法发送。";
+
+/* MARK: - 聊天界面（ChatView） */
+
+"Recent chats (⌘Y)" = "最近聊天（⌘Y）";
+"New chat (⌘N)" = "新对话（⌘N）";
+"Unpin — hide when clicking away (⌘P)" = "取消固定——点击别处即隐藏（⌘P）";
+"Keep on top (⌘P)" = "保持置顶（⌘P）";
+"Set up a provider…" = "先设置一个服务商…";
+"no model" = "未选模型";
+"Thinking…" = "思考中…";
+"New messages" = "有新消息";
+"Find in chat" = "在对话中查找";
+"No matches" = "无匹配";
+"{0} of {1}" = "第 {0} 条，共 {1} 条";
+"Close find (⎋)" = "关闭查找（⎋）";
+"Previous match (⇧⌘G)" = "上一个匹配（⇧⌘G）";
+"Next match (⌘G)" = "下一个匹配（⌘G）";
+"Copied" = "已拷贝";
+"Copy" = "拷贝";
+"Copy the whole response" = "拷贝整条回复";
+"Fork" = "分叉";
+"Start a new conversation from this point" = "从此处开启一段新对话";
+"Copy Message" = "拷贝这条消息";
+"Fork Here" = "从此处分叉";
+"Retry" = "重试";
+"Edit prompt" = "编辑提示词";
+"Edit Prompt…" = "编辑提示词…";
+"Ask again — switch the model in the pill first to retry with a different one" = "再问一次——先在上方胶囊切换模型，即可换一个模型重试";
+"Put your last message back in the composer to edit and resend" = "把上一条消息放回输入框，修改后重新发送";
+"Reasoning" = "思考过程";
+"Hide the model's thinking" = "收起模型的思考";
+"Show the model's thinking" = "展开模型的思考";
+"Show less thinking" = "收起思考";
+"Show more thinking" = "展开更多思考";
+"Don't send images to {0} again" = "不再向 {0} 发送图片";
+"Don't send PDFs directly to {0} again" = "不再向 {0} 直接发送 PDF";
+
+/* MARK: - 历史弹窗（HistoryPopover） */
+
+"Search chats…" = "搜索聊天记录…";
+"Forked conversation" = "由分叉创建的对话";
+"Delete chat (⌘⌫)" = "删除对话（⌘⌫）";
+"No saved chats" = "还没有保存的对话";
+"Today" = "今天";
+"Yesterday" = "昨天";
+
+/* MARK: - 服务商切换器（ProviderSwitcher） */
+
+"Providers" = "服务商";
+"Add provider…" = "添加服务商…";
+"Add Provider…" = "添加服务商…";
+"Refresh list" = "刷新列表";
+"Fetching models…" = "正在获取模型列表…";
+"No models fetched yet" = "尚未获取模型列表";
+"Accepts images" = "支持图片";
+"Takes PDF files directly" = "支持直接接收 PDF 文件";
+"{0} models" = "{0} 个模型";
+"Effort" = "推理强度";
+"For {0}" = "适用于 {0}";
+"Extra High" = "超高";
+"Manage providers…" = "管理服务商…";
+
+/* MARK: - 设置（SettingsView） */
+
+"General" = "通用";
+"Web Search" = "联网搜索";
+"Commands" = "快捷指令";
+"Hotkey" = "快捷键";
+
+/* 通用页 */
+
+"Launch PopChat at login" = "登录时启动 PopChat";
+"Couldn't update login item: {0}" = "无法更新登录项：{0}";
+"Check for updates automatically" = "自动检查更新";
+"PopChat checks GitHub Releases once a day and tells you when a newer version exists. It never downloads or installs anything — updating is opening the release page and dragging the new build to Applications, same as the first time." = "PopChat 每天检查一次 GitHub Releases，发现新版本时提醒你。它从不下载或安装任何东西——更新就是打开发布页面，把新版本拖进 Applications，和第一次安装一样。";
+"Checking…" = "检查中…";
+"Up to date" = "已是最新版本";
+"Version {0} is available" = "有新版本 {0}";
+"What's new…" = "看看更新了什么…";
+"Check Now" = "立即检查";
+"Appearance" = "外观";
+"Auto" = "自动";
+"Light" = "浅色";
+"Dark" = "深色";
+"Accent color" = "强调色";
+"Custom" = "自定义";
+"Your message style" = "消息气泡样式";
+"Accent tint" = "强调色描边";
+"Accent fill" = "强调色填充";
+"Liquid glass" = "液态玻璃";
+"Off because Reduce Transparency is enabled in System Settings." = "已在系统设置中开启“降低透明度”，此项自动关闭。";
+"Turn off for a solid panel and lower GPU use" = "关闭后使用不透明面板，降低 GPU 占用";
+"Panel tint" = "面板色调";
+"Clear" = "透明";
+"Tinted" = "着色";
+"Streaming text" = "流式输出";
+"Per-character" = "逐字";
+"Per-sentence" = "逐句";
+"Preview" = "预览";
+"Looks good — ship it" = "看起来不错——就这么发";
+"Chat Style" = "聊天风格";
+"Applies to your messages in the panel. Custom opens a picker for any accent color; Accent fill flips its text between black and white for whichever reads better. Streaming text: Per-character fades in glyph by glyph, Per-sentence commits a sentence at a time. Defaults: Accent tint, Blue, Per-character streaming. Panel tint defaults to the system glass appearance; the slider overrides it for PopChat only. Reduce Transparency always wins." = "作用于面板里你发出的消息。“自定义”可挑选任意强调色；“强调色填充”会按对比度自动在黑白之间切换文字。流式输出：逐字——一个字一个字浮现；逐句——整句整句出现。默认：强调色描边、蓝色、逐字流式。面板色调默认跟随系统玻璃外观，滑杆只对 PopChat 单独生效。开启“降低透明度”时以上设置以它为准。";
+"Language" = "语言";
+"Follow system" = "跟随系统";
+"Follow the macOS language; switch here to override it for PopChat only." = "跟随 macOS 系统语言；在此选择可仅对 PopChat 覆盖。";
+
+/* 服务商页 */
+
+"Remove Provider" = "移除服务商";
+"Remove Provider…" = "移除服务商…";
+"Cancel" = "取消";
+"Remove “{0}”?" = "移除“{0}”？";
+"Its API key and fetched model list are deleted too." = "它的 API 密钥与已获取的模型列表会一并删除。";
+"The live provider and model are picked from the pill in the chat panel — this list only manages what shows up there. Keys are stored locally, never synced." = "实际使用的服务商和模型在聊天面板顶部的胶囊里选择——这里只管理列表中显示哪些。密钥仅存本地，从不同步。";
+"Free" = "免费";
+"Custom…" = "自定义…";
+"Free tiers" = "免费额度";
+"More free APIs…" = "更多免费 API…";
+"Name" = "名称";
+"Base URL" = "基础 URL";
+"API Key" = "API 密钥";
+"Codex path" = "Codex 路径";
+"Default model" = "默认模型";
+"Send PDFs directly" = "直接发送 PDF";
+"Include /v1 where the provider requires it; local servers (Ollama, LM Studio) need no key." = "按服务商要求在 URL 里带上 /v1；本地服务（Ollama、LM Studio）无需密钥。";
+"Sends the original PDF as a file content part instead of extracted text. Turn on only if this endpoint accepts file input — many proxies reject or strip it." = "把原始 PDF 作为文件内容直接发给模型，而不是提取文字。仅当该接口支持文件输入时再开启——不少代理会拒绝或丢弃它。";
+"Fetch the model list first" = "请先获取模型列表";
+"Pick from fetched models" = "从已获取的模型中选择";
+"Fetch model list from the provider" = "从服务商获取模型列表";
+"Used when this provider is picked for the first time; after that the pill remembers your last model per provider." = "仅在该服务商第一次被选用时使用；之后胶囊会记住每个服务商的上一个模型。";
+"Attachment exceptions" = "附件支持例外";
+"Clear — PopChat will try again on the next send" = "清除——下次发送时 PopChat 会再次尝试";
+"no images" = "不支持图片";
+"no direct PDFs" = "不支持直传 PDF";
+"recorded" = "已记录";
+"manual" = "手动";
+
+/* 服务商副标题与能力说明 */
+
+"Not checked" = "未检查";
+"Checking installed Codex…" = "正在检查已安装的 Codex…";
+"Installed Codex · signed in" = "已安装 Codex · 已登录";
+"Installed Codex · {0}" = "已安装 Codex · {0}";
+"Codex not found · install it yourself" = "未找到 Codex · 请自行安装";
+"Codex installed · run codex login" = "已安装 Codex · 请运行 codex login";
+"Codex app-server unavailable" = "Codex app-server 不可用";
+"Not signed in · unofficial direct access" = "未登录 · 非官方直连";
+"Signed in · {0} · unofficial" = "已登录 · {0} · 非官方";
+"your ChatGPT plan" = "你的 ChatGPT 套餐";
+"Not set up" = "尚未设置";
+"Needs API key" = "需要 API 密钥";
+"{0} · no models fetched" = "{0} · 尚未获取模型";
+"no key needed" = "无需密钥";
+"Images are sent to the model; PDFs go as extracted text (this route has no file upload)." = "图片会直接发给模型；PDF 以提取的文字发送（该通道不支持文件上传）。";
+"Images and PDFs are sent to the model directly; one that rejects them shows an explicit error." = "图片和 PDF 都直接发给模型；被拒绝时会显示明确的错误。";
+"Image and PDF support is detected per model from OpenRouter's catalog." = "图片与 PDF 支持按模型从 OpenRouter 的目录中检测。";
+"Image support is detected per model from Ollama; PDFs are sent as extracted text." = "图片支持按模型从 Ollama 检测；PDF 以提取的文字发送。";
+"Images are sent optimistically — a model that rejects them shows an explicit error and is remembered below." = "图片会先尝试发送——拒绝它的模型会报明确错误，并记录在下方。";
+
+/* ChatGPT 登录 */
+
+"Signed in with ChatGPT" = "已登录 ChatGPT";
+"Sign Out" = "退出登录";
+"Waiting for the browser sign-in…" = "等待浏览器完成登录…";
+"Use your ChatGPT subscription" = "使用你的 ChatGPT 订阅";
+"Opens chatgpt.com to authorize. Works with Plus/Pro; usage counts against your plan's limits." = "打开 chatgpt.com 完成授权。支持 Plus/Pro；用量计入你的套餐额度。";
+"Sign in with ChatGPT" = "用 ChatGPT 登录";
+"Risk warning: this direct subscription route is unofficial. It calls a ChatGPT/Codex backend that is not documented for third-party apps, so it may stop working and may carry account or terms risk. Prefer the separate Codex app-server provider when possible." = "风险提示：这条订阅直连通道是非官方的。它调用的是未对第三方应用开放的 ChatGPT/Codex 后端，可能随时失效，也可能带来账号或条款风险。请尽量优先使用单独的 Codex app-server 服务商。";
+
+/* Codex app-server */
+
+"Auto-detect" = "自动检测";
+"Locate…" = "选择…";
+"Check Again" = "重新检查";
+"Starting codex app-server and checking the account…" = "正在启动 codex app-server 并检查账号…";
+"Codex not found — run `which codex` in Terminal and paste the result above, or click Locate…" = "未找到 Codex——在终端运行 `which codex`，把结果粘贴到上面，或点击“选择”…";
+"Codex is not signed in with ChatGPT" = "Codex 尚未登录 ChatGPT";
+"Not checked yet" = "尚未检查";
+"You must install and maintain Codex yourself, then run `codex login` in Terminal. PopChat does not install Codex or copy its credentials; it only starts your local `codex app-server` process. The app-server protocol is experimental, so a Codex update may occasionally be required." = "Codex 需要你自己安装和维护，并在终端运行 `codex login`。PopChat 不会安装 Codex，也不会拷贝它的凭据；只是启动你本地的 `codex app-server` 进程。app-server 协议仍是实验性的，Codex 更新后可能偶尔需要适配。";
+"Chat-only safety: PopChat requests ephemeral read-only threads with approval policy Never, and launches Codex with shell/exec, MCP, plugins/connectors, subagents, and other machine tools disabled. Managed Codex policy may override client settings, so app-server remains a local process you should trust and maintain." = "仅限对话的安全策略：PopChat 以“批准策略 Never”申请临时只读线程，并在启动 Codex 时禁用 shell/exec、MCP、插件/连接器、子代理等机器工具。托管型 Codex 策略可能覆盖客户端设置——app-server 始终是你应当信任并自行维护的本地进程。";
+"Web search: Codex runs its own web search, switched by the globe in the chat input. The engine choice and round cap in Settings → Web Search don't apply to this provider." = "联网搜索：Codex 使用它自带的联网搜索，由输入框旁的地球按钮开关。“设置 → 联网搜索”里的引擎选择与轮数上限对此服务商不生效。";
+"Select the codex executable (the path `which codex` prints in Terminal)." = "请选择 codex 可执行文件（终端里 `which codex` 输出的路径）。";
+"Leave empty to auto-detect (PopChat checks common install locations, then asks your login shell), or enter the path `which codex` prints in Terminal." = "留空则自动检测（PopChat 会先查常见安装位置，再询问你的登录 shell）；也可填入终端里 `which codex` 输出的路径。";
+"Choose the codex executable — the file `which codex` points at." = "选择 codex 可执行文件——`which codex` 指向的那个文件。";
+
+/* 联网搜索页 */
+
+"Web access available to the model" = "允许模型联网";
+"Search engine" = "搜索引擎";
+"Search API Key" = "搜索 API 密钥";
+"The model decides when to search (max 5 tool rounds)." = "由模型决定何时搜索（最多 5 轮工具调用）。";
+"DuckDuckGo (no key)" = "DuckDuckGo（无需密钥）";
+"Tavily (API key)" = "Tavily（需要密钥）";
+"Brave Search (API key)" = "Brave 搜索（需要密钥）";
+"Provider-native (OpenRouter)" = "服务商自带（OpenRouter）";
+
+/* 快捷指令页 */
+
+"System Prompt" = "系统提示词";
+"Reset to Default" = "恢复默认";
+"Sent with every conversation. The default teaches the model PopChat's pasteable-block format; clear it to send no system prompt." = "随每段对话一起发送。默认内容教会模型 PopChat 的可粘贴卡片格式；清空则不发送系统提示词。";
+"Prompt template — {input} marks where your text goes" = "提示词模板——{input} 标记你的文字插入的位置";
+"Add Command…" = "添加快捷指令…";
+"Delete command" = "删除快捷指令";
+"Type “/name your text” in the chat field." = "在聊天输入框输入 “/名称 你的文字” 即可使用。";
+
+/* 快捷键页 */
+
+"Toggle PopChat:" = "显示 / 隐藏 PopChat：";
+"If ⌥Space is taken by another app, unbind it there or record a different shortcut." = "如果 ⌥Space 已被其他应用占用，请在那个应用里解绑，或在这里录制别的快捷键。";
+
+/* MARK: - 取色器（AccentPicker） */
+
+"Custom accent" = "自定义强调色";
+"Used everywhere the accent appears" = "应用于所有出现强调色的地方";
+"Hue" = "色相";
+"Saturation" = "饱和度";
+"Brightness" = "亮度";
+"Reset" = "还原";
+"Forget the custom color and go back to Blue" = "清除自定义颜色，恢复为蓝色";
+"Custom accent {0} — click to edit" = "自定义强调色 {0}——点击可修改";
+"Choose a custom accent color" = "挑选一个自定义强调色";
+
+/* MARK: - 状态与提示（ChatStore / clients） */
+
+"Starting Codex…" = "正在启动 Codex…";
+"Reasoning…" = "思考中…";
+"Temporary error — Codex is retrying…" = "临时错误——Codex 正在重试…";
+"Searching: {0}" = "搜索：{0}";
+"Reading: {0}" = "读取：{0}";
+"Tool: {0}" = "工具：{0}";
+"This fork's parent conversation is missing — showing only the messages added after the fork." = "这段分叉对话的母对话已丢失——只显示分叉之后新增的消息。";
+"Unknown shortcut “/{0}”. Define it in Settings → Slash Commands, or escape the leading slash." = "未知的快捷指令 “/{0}”。请在 设置 → 快捷指令 中定义它，或在开头加 “/” 转义。";
+"No provider selected — open Settings…" = "未选择服务商——请打开设置…";
+"No model set for {0}. Pick one from the model menu (fetch the list first) or Settings." = "{0} 尚未选择模型。请在模型菜单中挑选（先获取列表），或到设置中配置。";
+"Not signed in to ChatGPT. Right-click the menu bar icon → Settings… → Providers → Sign in with ChatGPT." = "尚未登录 ChatGPT。右键菜单栏图标 → 设置… → 服务商 → 用 ChatGPT 登录。";
+"No API key for {0}. Add one in Settings → Providers (right-click the menu bar icon), or pick a configured provider from the model pill above." = "{0} 还没有 API 密钥。请在 设置 → 服务商 中添加（右键菜单栏图标），或在上方胶囊中换一个已配置的服务商。";
+"Couldn't load that conversation — its file is missing or corrupt." = "无法读取该对话——文件缺失或已损坏。";
+"Recorded: {0} didn't accept {1} — the composer will warn before sending it {1} again. Clear this in Settings → Providers if the rejection was transient." = "已记录：{0} 不接受{1}——输入框之后会在发送{1}前先行提醒。如果只是偶发拒绝，可在 设置 → 服务商 中清除。";
+"images" = "图片";
+"PDF files" = "PDF 文件";
+"See the attached file(s)." = "详见附件。";
+"[File: {0} — a PDF with no extractable text; its content could not be included because this model does not accept PDF files directly]" = "[文件：{0} ——扫描版 PDF 无法提取文字；该模型不支持直接接收 PDF 文件，内容无法包含]";
+
+/* 工具说明（发给模型，保持英文以获得最佳工具调用效果；此处仅活动行） */
+
+"Tool-call limit reached ({0} rounds) — finishing with what was gathered" = "已达工具调用上限（{0} 轮）——用已收集的信息作答";
+"⚠︎ {0} failed: {1}" = "⚠︎ {0} 失败：{1}";
+"⚠︎ Codex app-server attempted a tool call; PopChat did not grant additional permissions." = "⚠︎ Codex app-server 尝试了一次工具调用；PopChat 未授予额外权限。";
+"⚠︎ Response was cut off at the model's output limit — it may be incomplete." = "⚠︎ 回复在模型输出上限处被截断——可能不完整。";
+"ChatGPT subscription rate limit reached (the plan's Codex quota). Try again later, or switch provider. Details: {0}" = "ChatGPT 订阅已达速率上限（套餐的 Codex 配额）。请稍后再试或切换服务商。详情：{0}";
+"HTTP {0} from chatgpt.com: {1}" = "chatgpt.com 返回 HTTP {0}：{1}";
+"The ChatGPT backend reported a failure without details." = "ChatGPT 后端报错，但没有给出细节。";
+"The ChatGPT backend sent an error event without details." = "ChatGPT 后端发来错误事件，但没有给出细节。";
+
+/* MARK: - 附件（Attachment） */
+
+"couldn't read file." = "无法读取文件。";
+"too large ({0} MB — limit is {1} MB)." = "文件过大（{0} MB——上限 {1} MB）。";
+"couldn't decode image." = "无法解析图片。";
+"couldn't read image data." = "无法读取图片数据。";
+"couldn't downscale image." = "无法缩放图片。";
+"downscaled to {0}×{1}" = "已缩放至 {0}×{1}";
+"couldn't encode image as JPEG." = "无法编码为 JPEG。";
+"image still exceeds 10 MB after downscaling." = "缩放后图片仍超过 10 MB。";
+"couldn't open PDF." = "无法打开 PDF。";
+"PDF is password-protected." = "PDF 有密码保护。";
+"very little extractable text — likely a scanned PDF; content may be missing" = "几乎提取不到文字——可能是扫描版 PDF；内容可能缺失";
+"truncated at {0} characters" = "已在 {0} 字符处截断";
+"over {0} MB — sent as extracted text, not the original PDF" = "超过 {0} MB——将以提取的文字发送，而非原始 PDF";
+
+/* MARK: - 客户端错误（OpenAIChatClient / Codex / ChatGPTAuth） */
+
+"Unexpected response type" = "意外的响应类型";
+"Invalid base URL: {0}" = "无效的基础 URL：{0}";
+"HTTP {0} from {1}: {2}" = "{1} 返回 HTTP {0}：{2}";
+"no body" = "响应为空";
+"Unexpected response from GitHub." = "GitHub 返回了意外的响应。";
+"GitHub is rate-limiting update checks — try again later." = "GitHub 正在限制更新检查频率——请稍后再试。";
+"GitHub returned HTTP {0}." = "GitHub 返回 HTTP {0}。";
+"Codex app-server did not answer within 30 seconds. Update Codex and check its login, then try again." = "Codex app-server 30 秒内没有响应。请更新 Codex 并检查其登录状态，然后再试。";
+"Codex app-server check ended unexpectedly." = "Codex app-server 检查意外终止。";
+"Codex app-server returned no available models. Update Codex and try again." = "Codex app-server 没有返回可用模型。请更新 Codex 后再试。";
+"Codex app-server returned an invalid thread/start response." = "Codex app-server 返回了无效的 thread/start 响应。";
+"Codex is installed but not signed in. Run `codex login` in Terminal, then check again." = "已安装 Codex，但尚未登录。请在终端运行 `codex login`，然后重新检查。";
+"Codex is not using a ChatGPT subscription. Run `codex login` and choose ChatGPT sign-in, then check again." = "Codex 未使用 ChatGPT 订阅。请运行 `codex login` 并选择 ChatGPT 登录，然后重新检查。";
+"Codex app-server rejected {0}: {1}. Try updating Codex." = "Codex app-server 拒绝了 {0}：{1}。请尝试更新 Codex。";
+"Codex app-server returned an invalid {0} response. Try updating Codex." = "Codex app-server 返回了无效的 {0} 响应。请尝试更新 Codex。";
+"The Codex app-server request has no user message." = "Codex app-server 请求中没有用户消息。";
+"Couldn't start Codex at {0}: {1}" = "无法启动 {0} 处的 Codex：{1}";
+"Codex app-server exited while waiting for {0}. Make sure your Codex installation is current.{1}" = "等待 {0} 时 Codex app-server 退出了。请确保你的 Codex 是最新版本。{1}";
+"Codex is not installed or PopChat cannot find it. Install Codex yourself and run `codex login`. If it is already installed, run `which codex` in Terminal and paste the result into the Codex path field in Settings → Providers." = "未安装 Codex，或 PopChat 找不到它。请自行安装 Codex 并运行 `codex login`。如果已经安装，请在终端运行 `which codex`，把结果粘贴到 设置 → 服务商 的 Codex 路径一栏。";
+"Checking Codex app-server failed: {0}" = "检查 Codex app-server 失败：{0}";
+"OpenAI refused the sign-in: {0} ({1})" = "OpenAI 拒绝了这次登录：{0}（{1}）";
+"Redirect arrived without an authorization code." = "重定向中没有携带授权码。";
+"Not signed in to ChatGPT — open Settings → Providers and sign in." = "尚未登录 ChatGPT——请打开 设置 → 服务商 并登录。";
+"ChatGPT session expired and refresh failed ({0}). Sign in again in Settings → Providers." = "ChatGPT 会话已过期，刷新失败（{0}）。请在 设置 → 服务商 中重新登录。";
+"Unexpected response from the token endpoint." = "令牌端点返回了意外的响应。";
+"Token endpoint returned HTTP {0}: {1}" = "令牌端点返回 HTTP {0}：{1}";
+"OpenAI returned no refresh token — sign in again." = "OpenAI 未返回刷新令牌——请重新登录。";
+"Sign-in succeeded but no ChatGPT account id was found in the token. Is this a ChatGPT (not API-platform) account?" = "登录成功，但令牌中没有 ChatGPT 账号 ID。这是 ChatGPT 账号（而非 API 平台账号）吗？";
+"Couldn't generate secure random data for sign-in. Try again." = "无法为登录生成安全随机数。请重试。";
+"Couldn't listen on localhost:{0} for the sign-in redirect ({1}). Is another app (or Codex CLI login) using that port?" = "无法在 localhost:{0} 上监听登录重定向（{1}）。该端口是否被其他应用（或 Codex CLI 登录）占用？";
+"Add a base URL for {0} first." = "请先为 {0} 填写基础 URL。";
+"Invalid base URL: {0}" = "无效的基础 URL：{0}";
+"HTTP {0} fetching models: {1}" = "获取模型列表时返回 HTTP {0}：{1}";
+"{0} returned an empty model list." = "{0} 返回了空的模型列表。";
+"Fetching models failed: {0}" = "获取模型列表失败：{0}";
+"Sign-in failed" = "登录失败";
+"no details" = "没有细节";
+"unknown protocol error" = "未知协议错误";
+
+/* MARK: - 补充 */
+
+"Hex" = "十六进制";
+"Model thinking" = "模型思考";
+"Thinking" = "思考中";
+"Free tier · [Get an API key]({0}){1}. Paste it below, then fetch the model list with ↻." = "免费额度 · [获取 API 密钥]({0}){1}。粘贴到下方，然后点 ↻ 获取模型列表。";
+"name" = "名称";

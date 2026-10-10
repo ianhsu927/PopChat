@@ -46,7 +46,7 @@ struct CustomAccentSwatch: View {
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .help(isSet ? "Custom accent \(customHex) — click to edit" : "Choose a custom accent color")
+        .help(isSet ? L("Custom accent {0} — click to edit", customHex) : L("Choose a custom accent color"))
         .popover(isPresented: $showPicker, arrowEdge: .bottom) {
             AccentPickerPopover(accentHex: $accentHex, customHex: $customHex)
         }
@@ -105,16 +105,16 @@ struct AccentPickerPopover: View {
                             .strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5)
                     )
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Custom accent")
+                    Text(L("Custom accent"))
                         .font(.system(size: 12, weight: .semibold))
-                    Text("Used everywhere the accent appears")
+                    Text(L("Used everywhere the accent appears"))
                         .font(.system(size: 10.5))
                         .foregroundStyle(.secondary)
                 }
             }
 
             VStack(spacing: 8) {
-                labeled("Hue") {
+                labeled(L("Hue")) {
                     GradientSlider(value: hueBinding, track: LinearGradient(
                         colors: stride(from: 0.0, through: 1.0, by: 1.0 / 12).map {
                             Theme.color(Theme.hex(hue: $0, saturation: 1, brightness: 1))
@@ -122,7 +122,7 @@ struct AccentPickerPopover: View {
                         startPoint: .leading, endPoint: .trailing
                     ))
                 }
-                labeled("Saturation") {
+                labeled(L("Saturation")) {
                     GradientSlider(value: saturationBinding, track: LinearGradient(
                         colors: [
                             Theme.color(Theme.hex(hue: hue, saturation: 0, brightness: brightness)),
@@ -131,7 +131,7 @@ struct AccentPickerPopover: View {
                         startPoint: .leading, endPoint: .trailing
                     ))
                 }
-                labeled("Brightness") {
+                labeled(L("Brightness")) {
                     GradientSlider(value: brightnessBinding, track: LinearGradient(
                         colors: [
                             .black,
@@ -143,7 +143,7 @@ struct AccentPickerPopover: View {
             }
 
             HStack(spacing: 8) {
-                Text("Hex")
+                Text(L("Hex"))
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                     .frame(width: 62, alignment: .leading)
@@ -153,12 +153,12 @@ struct AccentPickerPopover: View {
                     .frame(width: 92)
                     .onSubmit { commitHexDraft() }
                 Spacer()
-                Button("Reset") {
+                Button(L("Reset")) {
                     customHex = ""
                     accentHex = Theme.defaultAccentHex
                 }
                 .font(.system(size: 11))
-                .help("Forget the custom color and go back to Blue")
+                .help(L("Forget the custom color and go back to Blue"))
             }
         }
         .padding(14)

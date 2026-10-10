@@ -99,7 +99,11 @@ struct ChatView: View {
         // Lives on the root, not in transcriptZone: restoring into an EMPTY panel
         // builds that subtree fresh, and .onChange never fires on first appearance.
         .onChange(of: store.restoreTick) { _, _ in revealRestoredTranscript() }
+        // A language-override change (Settings › General) re-renders every string.
+        .onLanguageChange { languageTick += 1 }
     }
+
+    @State private var languageTick = 0
 
     /// Hide, let one layout pass land (that's where the transcript pre-scrolls to
     /// the bottom), then bring it in as a group ~60ms into the panel's growth so
@@ -220,7 +224,7 @@ struct ChatView: View {
             }
             .buttonStyle(.plain)
             .keyboardShortcut("y", modifiers: .command)
-            .help("Recent chats (⌘Y)")
+            .help(L("Recent chats (⌘Y)"))
             .popover(isPresented: $historyShown, arrowEdge: .bottom) {
                 HistoryPopover(store: store)
             }
@@ -234,7 +238,7 @@ struct ChatView: View {
             }
             .buttonStyle(.plain)
             .keyboardShortcut("n", modifiers: .command)
-            .help("New chat (⌘N)")
+            .help(L("New chat (⌘N)"))
             Button {
                 state.pinned.toggle()
             } label: {
@@ -247,7 +251,7 @@ struct ChatView: View {
             }
             .buttonStyle(.plain)
             .keyboardShortcut("p", modifiers: .command)
-            .help(state.pinned ? "Unpin — hide when clicking away (⌘P)" : "Keep on top (⌘P)")
+            .help(state.pinned ? L("Unpin — hide when clicking away (⌘P)") : L("Keep on top (⌘P)"))
             .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: state.pinned)
         }
         .foregroundStyle(.secondary)
@@ -267,10 +271,10 @@ struct ChatView: View {
         // conversation. (Cheap per render: secrets and tokens are memory-cached,
         // the rest are dictionary lookups.)
         guard let provider = providerStore.selectedProvider,
-              providerStore.hasSetupEvidence(provider) else { return "Set up a provider…" }
+              providerStore.hasSetupEvidence(provider) else { return L("Set up a provider…") }
         let model = providerStore.currentModel
         let effort = providerStore.currentReasoningEffort.map { " · \($0)" } ?? ""
-        return "\(provider.name) · \(model.isEmpty ? "no model" : model)\(effort)"
+        return "\(provider.name) · \(model.isEmpty ? L("no model") : model)\(effort)"
     }
 
     // MARK: - Transcript
@@ -319,7 +323,7 @@ struct ChatView: View {
                             // (same gating trick as `find`), so status updates
                             // repaint exactly one row.
                             let waiting: String? = id == streamingID && message.text.isEmpty
-                                ? (store.pendingStatus ?? "Thinking…")
+                                ? (store.pendingStatus ?? L("Thinking…"))
                                 : nil
                             // Nil for every row but that same one, so the
                             // thinking arriving at wire rate repaints exactly
@@ -517,7 +521,7 @@ struct ChatView: View {
                 .foregroundStyle(.secondary)
             KeyRoutingTextField(
                 text: $findQuery,
-                placeholder: "Find in chat",
+                placeholder: L(FieldPlaceholder.findInChat),
                 focusBump: findFocusBump,
                 onMoveUp: {
                     stepMatch(-1)
@@ -553,7 +557,7 @@ struct ChatView: View {
             .buttonStyle(.plain)
             // Dimmer than the steppers (5a): stepping is the bar's job, ✕ isn't.
             .foregroundStyle(.secondary.opacity(0.78))
-            .help("Close find (⎋)")
+            .help(L("Close find (⎋)"))
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
@@ -562,8 +566,8 @@ struct ChatView: View {
 
     private func matchLabel(_ count: Int) -> String {
         if findQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return "" }
-        guard count > 0 else { return "No matches" }
-        return "\(min(findIndex + 1, count)) of \(count)"
+        guard count > 0 else { return L("No matches") }
+        return L("{0} of {1}", "\(min(findIndex + 1, count))", "\(count)")
     }
 
     private func findStepButton(
@@ -582,7 +586,7 @@ struct ChatView: View {
         .foregroundStyle(.secondary)
         .disabled(!enabled)
         .keyboardShortcut("g", modifiers: modifiers)
-        .help(symbol == "chevron.up" ? "Previous match (⇧⌘G)" : "Next match (⌘G)")
+        .help(symbol == "chevron.up" ? L("Previous match (⇧⌘G)") : L("Next match (⌘G)"))
     }
 
     /// Transcript scrolls under the pills; the top 44pt fades out beneath them.
@@ -633,7 +637,7 @@ struct ChatView: View {
                 Image(systemName: "arrow.down")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(accent)
-                Text("New messages")
+                Text(L("New messages"))
                     .font(.system(size: 11.5, weight: .medium))
                     .foregroundStyle(dark ? Theme.color("#f5f5f7") : Theme.color("#1d1d1f"))
             }
@@ -823,17 +827,17 @@ private struct MessageRow: View, Equatable {
                                 copied = true
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { copied = false }
                             } label: {
-                                Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
+                                Label(copied ? L("Copied") : L("Copy"), systemImage: copied ? "checkmark" : "doc.on.doc")
                                     .padding(.vertical, 2)
                                     .contentShape(Rectangle())
                             }
-                            .help("Copy the whole response")
+                            .help(L("Copy the whole response"))
                             Button(action: onFork) {
-                                Label("Fork", systemImage: "arrow.triangle.branch")
+                                Label(L("Fork"), systemImage: "arrow.triangle.branch")
                                     .padding(.vertical, 2)
                                     .contentShape(Rectangle())
                             }
-                            .help("Start a new conversation from this point")
+                            .help(L("Start a new conversation from this point"))
                             if rerunnable {
                                 rerunButtons
                             }
@@ -847,15 +851,15 @@ private struct MessageRow: View, Equatable {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contextMenu {
-                    Button("Copy Message") {
+                    Button(L("Copy Message")) {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(fullText(), forType: .string)
                     }
-                    Button("Fork Here", action: onFork)
+                    Button(L("Fork Here"), action: onFork)
                     if rerunnable {
                         Divider()
-                        Button("Retry", action: onRetry)
-                        Button("Edit Prompt…", action: onEditPrompt)
+                        Button(L("Retry"), action: onRetry)
+                        Button(L("Edit Prompt…"), action: onEditPrompt)
                     }
                 }
             }
@@ -880,7 +884,7 @@ private struct MessageRow: View, Equatable {
                             Button {
                                 onRecordException(.images)
                             } label: {
-                                Text("Don't send images to \(action.model) again")
+                                Text(L("Don't send images to {0} again", action.model))
                                     .padding(.vertical, 4)
                                     .contentShape(Rectangle())
                             }
@@ -889,7 +893,7 @@ private struct MessageRow: View, Equatable {
                             Button {
                                 onRecordException(.files)
                             } label: {
-                                Text("Don't send PDFs directly to \(action.model) again")
+                                Text(L("Don't send PDFs directly to {0} again", action.model))
                                     .padding(.vertical, 4)
                                     .contentShape(Rectangle())
                             }
@@ -926,17 +930,17 @@ private struct MessageRow: View, Equatable {
     @ViewBuilder
     private var rerunButtons: some View {
         Button(action: onRetry) {
-            Label("Retry", systemImage: "arrow.clockwise")
+            Label(L("Retry"), systemImage: "arrow.clockwise")
                 .padding(.vertical, 2)
                 .contentShape(Rectangle())
         }
-        .help("Ask again — switch the model in the pill first to retry with a different one")
+        .help(L("Ask again — switch the model in the pill first to retry with a different one"))
         Button(action: onEditPrompt) {
-            Label("Edit prompt", systemImage: "pencil")
+            Label(L("Edit prompt"), systemImage: "pencil")
                 .padding(.vertical, 2)
                 .contentShape(Rectangle())
         }
-        .help("Put your last message back in the composer to edit and resend")
+        .help(L("Put your last message back in the composer to edit and resend"))
     }
 }
 
@@ -965,7 +969,7 @@ private struct ReasoningDisclosure: View {
                         .rotationEffect(.degrees(expanded ? 90 : 0))
                     Image(systemName: "brain")
                         .font(.system(size: 10))
-                    Text("Reasoning")
+                    Text(L("Reasoning"))
                         .font(.system(size: 11, weight: .medium))
                 }
                 .foregroundStyle(.secondary)
@@ -973,7 +977,7 @@ private struct ReasoningDisclosure: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(expanded ? "Hide the model's thinking" : "Show the model's thinking")
+            .help(expanded ? L("Hide the model's thinking") : L("Show the model's thinking"))
             if expanded {
                 SelectableText(attributed: MarkdownRenderer.attributedReasoning(text))
                     .padding(.leading, 10)
@@ -1024,7 +1028,7 @@ struct WaitingIndicator: View {
                     .fill(Theme.color(accentHex))
                     .frame(width: 7, height: 7)
                     .opacity(pulsing ? 0.25 : 1)
-                Text(thinking ? "Thinking" : status)
+                Text(thinking ? L("Thinking") : status)
                     .font(.system(size: 13))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -1046,7 +1050,7 @@ struct WaitingIndicator: View {
                             .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
-                    .help(expanded ? "Show less thinking" : "Show more thinking")
+                    .help(expanded ? L("Show less thinking") : L("Show more thinking"))
                 }
             }
             if let reasoning, thinking {
@@ -1119,7 +1123,7 @@ struct ThinkingScroller: NSViewRepresentable {
         textView.isVerticallyResizable = true
         textView.isHorizontallyResizable = false
         textView.autoresizingMask = [.width]
-        textView.setAccessibilityLabel("Model thinking")
+        textView.setAccessibilityLabel(L("Model thinking"))
 
         let scroll = NSScrollView()
         scroll.documentView = textView

@@ -253,14 +253,14 @@ enum CodexAppServerClient {
             group.addTask {
                 try await Task.sleep(for: .seconds(30))
                 holder.stop()
-                throw ClientError(message: "Codex app-server did not answer within 30 seconds. Update Codex and check its login, then try again.")
+                throw ClientError(message: L("Codex app-server did not answer within 30 seconds. Update Codex and check its login, then try again."))
             }
             defer {
                 group.cancelAll()
                 holder.stop()
             }
             guard let first = try await group.next() else {
-                throw ClientError(message: "Codex app-server check ended unexpectedly.")
+                throw ClientError(message: L("Codex app-server check ended unexpectedly."))
             }
             return first
         }
@@ -314,7 +314,7 @@ enum CodexAppServerClient {
             }
         }
         guard !models.isEmpty else {
-            throw ClientError(message: "Codex app-server returned no available models. Update Codex and try again.")
+            throw ClientError(message: L("Codex app-server returned no available models. Update Codex and try again."))
         }
         return Inspection(
             email: account.email,
@@ -383,7 +383,7 @@ enum CodexAppServerClient {
             // token — say what is happening or the app reads as frozen. These
             // are `.status` (transient, shown in the waiting row), not
             // `.activity` (permanent transcript rows).
-            continuation.yield(.status("Starting Codex…"))
+            continuation.yield(.status(L("Starting Codex…")))
             guard let executable = executableOverride ?? executableURL() else {
                 throw ClientError(message: missingMessage, reason: .missing)
             }
@@ -433,7 +433,7 @@ enum CodexAppServerClient {
             ])
             let threadResult = try responseResult(threadResponse, method: "thread/start")
             guard let threadID = threadResult["thread"]?.objectValue?["id"]?.stringValue else {
-                throw ClientError(message: "Codex app-server returned an invalid thread/start response.")
+                throw ClientError(message: L("Codex app-server returned an invalid thread/start response."))
             }
 
             if !split.priorMessages.isEmpty {
@@ -527,7 +527,7 @@ enum CodexAppServerClient {
                             // Reasoning items stream no visible text but can run
                             // for a long time — the one signal that the model is
                             // alive.
-                            continuation.yield(.status("Reasoning…"))
+                            continuation.yield(.status(L("Reasoning…")))
                         case "webSearch":
                             continuation.yield(.status("Searching the web…"))
                         default:
@@ -571,7 +571,7 @@ enum CodexAppServerClient {
                         if dropped.contains(true) {
                             continuation.yield(.reasoning(reasoningSnapshot()))
                         }
-                        continuation.yield(.status("Temporary error — Codex is retrying…"))
+                        continuation.yield(.status(L("Temporary error — Codex is retrying…")))
                     } else if let message = params["error"]?.objectValue?["message"]?.stringValue {
                         continuation.yield(.error(friendlyError(message)))
                     }
@@ -694,7 +694,7 @@ enum CodexAppServerClient {
         return "Codex app-server stopped responding: no protocol event arrived for \(duration). Stop the turn or update Codex, then try again."
     }
 
-    private static let missingMessage = "Codex is not installed or PopChat cannot find it. Install Codex yourself and run `codex login`. If it is already installed, run `which codex` in Terminal and paste the result into the Codex path field in Settings → Providers."
+    private static let missingMessage = L("Codex is not installed or PopChat cannot find it. Install Codex yourself and run `codex login`. If it is already installed, run `which codex` in Terminal and paste the result into the Codex path field in Settings → Providers.")
 
     private struct Account: Sendable {
         var email: String?
@@ -706,13 +706,13 @@ enum CodexAppServerClient {
         let result = try responseResult(response, method: "account/read")
         guard let account = result["account"]?.objectValue else {
             throw ClientError(
-                message: "Codex is installed but not signed in. Run `codex login` in Terminal, then check again.",
+                message: L("Codex is installed but not signed in. Run `codex login` in Terminal, then check again."),
                 reason: .notSignedIn
             )
         }
         guard account["type"]?.stringValue == "chatgpt" else {
             throw ClientError(
-                message: "Codex is not using a ChatGPT subscription. Run `codex login` and choose ChatGPT sign-in, then check again.",
+                message: L("Codex is not using a ChatGPT subscription. Run `codex login` and choose ChatGPT sign-in, then check again."),
                 reason: .notSignedIn
             )
         }
@@ -721,11 +721,11 @@ enum CodexAppServerClient {
 
     fileprivate static func responseResult(_ response: JSONObject, method: String) throws -> JSONObject {
         if let error = response["error"]?.objectValue {
-            let detail = error["message"]?.stringValue ?? "unknown protocol error"
-            throw ClientError(message: "Codex app-server rejected \(method): \(detail). Try updating Codex.")
+            let detail = error["message"]?.stringValue ?? L("unknown protocol error")
+            throw ClientError(message: L("Codex app-server rejected {0}: {1}. Try updating Codex.", method, detail))
         }
         guard let result = response["result"]?.objectValue else {
-            throw ClientError(message: "Codex app-server returned an invalid \(method) response. Try updating Codex.")
+            throw ClientError(message: L("Codex app-server returned an invalid {0} response. Try updating Codex.", method))
         }
         return result
     }
@@ -740,7 +740,7 @@ enum CodexAppServerClient {
         let system = history.first { $0.role == "system" }.flatMap(textContent)
         let conversational = history.filter { $0.role == "user" || $0.role == "assistant" }
         guard let lastUser = conversational.lastIndex(where: { $0.role == "user" }) else {
-            throw ClientError(message: "The Codex app-server request has no user message.")
+            throw ClientError(message: L("The Codex app-server request has no user message."))
         }
         return HistorySplit(
             systemPrompt: system,
@@ -821,7 +821,7 @@ enum CodexAppServerClient {
         case "fileChange":
             return "⚠︎ Codex app-server attempted a file change; PopChat's read-only policy applies."
         case "mcpToolCall", "dynamicToolCall", "collabAgentToolCall":
-            return "⚠︎ Codex app-server attempted a tool call; PopChat did not grant additional permissions."
+            return L("⚠︎ Codex app-server attempted a tool call; PopChat did not grant additional permissions.")
         default:
             return nil
         }
@@ -1073,7 +1073,7 @@ private final class Session: @unchecked Sendable {
             try process.run()
         } catch {
             throw CodexAppServerClient.ClientError(
-                message: "Couldn't start Codex at \(executable.path): \(error.localizedDescription)"
+                message: L("Couldn't start Codex at {0}: {1}", executable.path, error.localizedDescription)
             )
         }
         // Drain stderr so a verbose app-server cannot fill its pipe and deadlock,
@@ -1108,7 +1108,7 @@ private final class Session: @unchecked Sendable {
             bufferedMessages.append(message)
         }
         throw CodexAppServerClient.ClientError(
-            message: "Codex app-server exited while waiting for \(method). Make sure your Codex installation is current.\(stderrSuffix())"
+            message: L("Codex app-server exited while waiting for {0}. Make sure your Codex installation is current.{1}", method, stderrSuffix())
         )
     }
 

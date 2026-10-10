@@ -48,6 +48,16 @@ cp "$BIN" "$APP/Contents/MacOS/PopChat"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"   # CFBundleIconFile
 
+# Localization tables (L10n.swift resolves through Contents/Resources/<code>.lproj).
+# Counted: a silently missing zh-Hans table would degrade the whole UI to English.
+for lproj in Resources/*.lproj; do
+    cp -R "$lproj" "$APP/Contents/Resources/"
+done
+if [ "$(find "$APP/Contents/Resources" -maxdepth 1 -name "*.lproj" | wc -l)" -lt 2 ]; then
+    echo "error: localization tables missing — the language picker would be a lie" >&2
+    exit 1
+fi
+
 # SPM dependency resource bundles (KeyboardShortcuts localizations, SwiftMath's math
 # fonts) must ship inside the app for Bundle.module lookup to succeed — without them
 # SwiftMath traps the first time a message contains LaTeX.

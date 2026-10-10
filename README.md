@@ -15,12 +15,13 @@ Press a global hotkey (default **⌥Space**) and a floating chat panel appears w
 
 - **Instant panel** — a non-activating `NSPanel`, so showing it never steals focus from the app underneath and dismissing it returns focus immediately. Remembers where you last dragged it. ⌘P pins it open.
 - **Any OpenAI-compatible provider** — OpenAI, OpenRouter, or any custom endpoint, plus local models via Ollama or LM Studio (no API key needed). Switch provider and model from a pill in the panel header.
-- **Slash commands** — your own prompt templates with a `{input}` placeholder and an autocomplete popup when the draft starts with `/`.
+- **Slash commands** — your own prompt templates with a `{input}` placeholder and an autocomplete popup when the draft starts with `/`. Two are built in: `/word` is a quick dictionary lookup (`/word serendipity` — English words get a 中文 gloss, 中文 words get an English one), and `/translate` / `/explain` seed fresh installs. User shortcuts can override a built-in by name.
 - **Retry the last answer** — with a different model if you like: switch the pill, press Retry. *Edit prompt* puts your last message back in the composer instead, and **↑** in an empty composer walks back through prompts you've sent.
 - **See the thinking** — while a reasoning model works, its thoughts scroll in a small window you can expand; once the answer lands they fold into a collapsed *Reasoning* section above it.
 - **Search your chats** — ⌘Y searches what was actually said, not just chat titles, and shows the matching line.
 - **Large editor** (⌘E) — the input capsule morphs into a full draft editor; ⌘↩ sends.
 - **Liquid-glass look** on macOS 26 (translucent panel with an adjustable tint), a solid fallback below that, Light/Dark/Auto appearance, four accent presets plus a custom color picker, and full support for Reduce Motion / Reduce Transparency.
+- **English & 简体中文** — the interface follows your macOS language, with an override in Settings › General (English / 简体中文) that applies live, no relaunch. CJK input is first-class: composing with an IME (pinyin candidate window) never fights the composer — Enter confirms the candidate instead of sending, and streaming re-renders never abort a mid-word composition.
 
 ## Install
 
@@ -91,6 +92,8 @@ Secrets are a plain JSON file, not the Keychain: builds from source are ad-hoc s
 POPCHAT_API_KEY=… .build/debug/PopChat --smoke              # live streaming round-trip
 .build/debug/PopChat --smoke-typing                         # composer latency budget
 .build/debug/PopChat --smoke-find                           # find-in-chat behavior
+.build/debug/PopChat --smoke-word                           # /word built-in dispatch
+.build/debug/PopChat --smoke-l10n                           # localization tables (run from dist/PopChat.app)
 ```
 
 A dozen more cover attachments, persistence, providers, prompt recall, cross-chat search, reasoning, the typewriter reveal and the Codex app-server transport (against fake fixtures, so they cost no subscription quota). See [CONTRIBUTING.md](CONTRIBUTING.md) for the full list, the rules for running them, and the performance constraints to respect when changing the transcript or composer.

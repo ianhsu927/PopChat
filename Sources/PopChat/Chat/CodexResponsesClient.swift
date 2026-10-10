@@ -79,7 +79,7 @@ enum CodexResponsesClient {
         while true {
             let roundsExhausted = round >= maxToolRounds
             if roundsExhausted {
-                continuation.yield(.activity("Tool-call limit reached (\(maxToolRounds) rounds) — finishing with what was gathered"))
+                continuation.yield(.activity(L("Tool-call limit reached ({0} rounds) — finishing with what was gathered", "\(maxToolRounds)")))
             }
 
             let outcome: RoundOutcome
@@ -133,7 +133,7 @@ enum CodexResponsesClient {
                 ))
                 let result = await executor.execute(name: call.name, argumentsJSON: call.arguments)
                 if result.hasPrefix("ERROR:") {
-                    continuation.yield(.activity("⚠︎ \(call.name) failed: \(result.dropFirst(6).trimmingCharacters(in: .whitespaces))"))
+                    continuation.yield(.activity(L("⚠︎ {0} failed: {1}", call.name, String(result.dropFirst(6).trimmingCharacters(in: .whitespaces)))))
                 }
                 input.append([
                     "type": "function_call_output",
@@ -317,7 +317,7 @@ enum CodexResponsesClient {
             // so the wait doesn't read as a frozen app.
             case "response.output_item.added":
                 if (event["item"] as? [String: Any])?["type"] as? String == "reasoning" {
-                    continuation.yield(.status("Reasoning…"))
+                    continuation.yield(.status(L("Reasoning…")))
                 }
 
             // The request asks for `summary: "auto"`, so the backend streams a
@@ -373,11 +373,11 @@ enum CodexResponsesClient {
             case "response.failed":
                 let error = (event["response"] as? [String: Any])?["error"] as? [String: Any]
                 throw ClientError(message: errorText(code: error?["code"], message: error?["message"])
-                    ?? "The ChatGPT backend reported a failure without details.")
+                    ?? L("The ChatGPT backend reported a failure without details."))
 
             case "error":
                 throw ClientError(message: errorText(code: event["code"], message: event["message"])
-                    ?? "The ChatGPT backend sent an error event without details.")
+                    ?? L("The ChatGPT backend sent an error event without details."))
 
             default:
                 break
@@ -390,7 +390,7 @@ enum CodexResponsesClient {
     private static func truncationMessage(reason: String?) -> String {
         switch reason {
         case "max_output_tokens":
-            return "⚠︎ Response was cut off at the model's output limit — it may be incomplete."
+            return L("⚠︎ Response was cut off at the model's output limit — it may be incomplete.")
         case "content_filter":
             return "⚠︎ Response was stopped by a content filter — it may be incomplete."
         default:
@@ -414,9 +414,9 @@ enum CodexResponsesClient {
         case 401:
             return "ChatGPT sign-in is no longer valid — sign in again in Settings → Providers."
         case 429:
-            return "ChatGPT subscription rate limit reached (the plan's Codex quota). Try again later, or switch provider. Details: \(body.prefix(300))"
+            return L("ChatGPT subscription rate limit reached (the plan's Codex quota). Try again later, or switch provider. Details: {0}", String(body.prefix(300)))
         default:
-            return "HTTP \(status) from chatgpt.com: \(body.isEmpty ? "no body" : String(body.prefix(500)))"
+            return L("HTTP {0} from chatgpt.com: {1}", "\(status)", body.isEmpty ? L("no body") : String(body.prefix(500)))
         }
     }
 

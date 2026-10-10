@@ -16,8 +16,8 @@ enum BubbleStyle: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .accentTint: "Accent tint"
-        case .accentFill: "Accent fill"
+        case .accentTint: L("Accent tint")
+        case .accentFill: L("Accent fill")
         }
     }
 }
@@ -33,8 +33,8 @@ enum StreamingMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .perCharacter: "Per-character"
-        case .perSentence: "Per-sentence"
+        case .perCharacter: L("Per-character")
+        case .perSentence: L("Per-sentence")
         }
     }
 }
@@ -49,9 +49,9 @@ enum AppearanceChoice: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .auto: "Auto"
-        case .light: "Light"
-        case .dark: "Dark"
+        case .auto: L("Auto")
+        case .light: L("Light")
+        case .dark: L("Dark")
         }
     }
 

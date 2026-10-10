@@ -719,7 +719,7 @@ final class ProviderStore: ObservableObject {
             result = .failure(error)
         } catch {
             result = .failure(CodexAppServerClient.ClientError(
-                message: "Checking Codex app-server failed: \(error.localizedDescription)"
+                message: L("Checking Codex app-server failed: {0}", error.localizedDescription)
             ))
         }
 
@@ -930,11 +930,11 @@ final class ProviderStore: ObservableObject {
         defer { fetchingProviders.remove(id) }
 
         guard !provider.baseURL.isEmpty else {
-            modelFetchErrors[id] = "Add a base URL for \(provider.name) first."
+            modelFetchErrors[id] = L("Add a base URL for {0} first.", provider.name)
             return
         }
         guard var url = URL(string: provider.baseURL) else {
-            modelFetchErrors[id] = "Invalid base URL: \(provider.baseURL)"
+            modelFetchErrors[id] = L("Invalid base URL: {0}", provider.baseURL)
             return
         }
         url.append(path: "models")
@@ -951,12 +951,12 @@ final class ProviderStore: ObservableObject {
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
                 let code = (response as? HTTPURLResponse)?.statusCode ?? -1
                 let body = String(decoding: data.prefix(300), as: UTF8.self)
-                modelFetchErrors[id] = "HTTP \(code) fetching models: \(body)"
+                modelFetchErrors[id] = L("HTTP {0} fetching models: {1}", "\(code)", body)
                 return
             }
             let (ids, listCapabilities) = try Self.decodeModelList(data)
             guard !ids.isEmpty else {
-                modelFetchErrors[id] = "\(provider.name) returned an empty model list."
+                modelFetchErrors[id] = L("{0} returned an empty model list.", provider.name)
                 return
             }
             knownModels[id] = ids
@@ -974,7 +974,7 @@ final class ProviderStore: ObservableObject {
             capabilities.merge(native) { _, probed in probed }
             modelCapabilities[id] = capabilities.isEmpty ? nil : capabilities
         } catch {
-            modelFetchErrors[id] = "Fetching models failed: \(error.localizedDescription)"
+            modelFetchErrors[id] = L("Fetching models failed: {0}", error.localizedDescription)
         }
     }
 

@@ -1,6 +1,15 @@
 import AppKit
 import SwiftUI
 
+/// Placeholders that exist beyond one language. The `--smoke-history` and
+/// `--smoke-find` harnesses locate their fields by `placeholderString`, and a
+/// Chinese UI must not break them: the harness asks for the ENGLISH constant
+/// and each caller passes `L(placeholder)` into the view.
+enum FieldPlaceholder {
+    static let historySearch = "Search chats…"
+    static let findInChat = "Find in chat"
+}
+
 /// Single-line search field that routes ↑/↓/↩/⎋ back to its owner instead of
 /// letting the field editor swallow them.
 ///

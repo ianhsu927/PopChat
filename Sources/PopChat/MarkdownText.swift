@@ -966,7 +966,7 @@ struct PasteableBlockView: View {
                         .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .help("Copy this block")
+                .help(L("Copy this block"))
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)

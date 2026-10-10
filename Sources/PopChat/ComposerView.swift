@@ -82,7 +82,7 @@ final class ComposerModel: ObservableObject {
             }
         }
         if totalChars > 50_000 {
-            attachNotice = "Attachments total ~\(totalChars / 4 / 1000)k tokens — may exceed smaller models' context windows."
+            attachNotice = L("Attachments total ~{0}k tokens — may exceed smaller models' context windows.", "\(totalChars / 4 / 1000)")
         }
     }
 }
@@ -395,7 +395,7 @@ struct ComposerView: View {
         VStack(spacing: 0) {
             if editorMode {
                 HStack(spacing: 6) {
-                    Text("Draft")
+                    Text(L("Draft"))
                         .font(.system(size: 11.5, weight: .semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -418,7 +418,7 @@ struct ComposerView: View {
                             .contentShape(Circle())
                     }
                     .keyboardShortcut("e", modifiers: .command) // ⌘E toggles the editor
-                    .help("Close editor (⌘E or Esc)")
+                    .help(L("Close editor (⌘E or Esc)"))
                 }
                 .padding(.top, 10)
                 .padding(.leading, 14)
@@ -455,7 +455,7 @@ struct ComposerView: View {
                             .contentShape(Circle())
                     }
                     .keyboardShortcut("e", modifiers: .command)
-                    .help("Expand editor (⌘E)")
+                    .help(L("Expand editor (⌘E)"))
                     .padding(.bottom, 3.5)
                     .transition(Self.chromeFade)
                     sendOrStopButton(size: 26)
@@ -475,7 +475,7 @@ struct ComposerView: View {
             attachButton
             globeButton
             Spacer()
-            Text("↩ newline · ⌘↩ send")
+            Text(L("↩ newline · ⌘↩ send"))
                 .font(.system(size: 10.5))
                 .foregroundStyle(.tertiary)
             sendOrStopButton(size: 26, sendShortcut: .init(.return, modifiers: .command))
@@ -491,7 +491,7 @@ struct ComposerView: View {
                 .frame(width: 24, height: 24)
                 .contentShape(Circle())
         }
-        .help("Attach files (or drag & drop, or paste)")
+        .help(L("Attach files (or drag & drop, or paste)"))
     }
 
     private var globeButton: some View {
@@ -504,7 +504,7 @@ struct ComposerView: View {
                 .frame(width: 24, height: 24)
                 .contentShape(Circle())
         }
-        .help(webEnabled ? "Web access on — model may search and read pages" : "Web access off")
+        .help(webEnabled ? L("Web access on — model may search and read pages") : L("Web access off"))
     }
 
     private var composerField: some View {
@@ -552,7 +552,7 @@ struct ComposerView: View {
         )
         .overlay(alignment: .topLeading) {
             if draft.isEmpty {
-                Text(editorMode ? "Write a long prompt…" : "Message…  (“/” for shortcuts)")
+                Text(editorMode ? L("Write a long prompt…") : L("Message…  (“/” for shortcuts)"))
                     .font(.system(size: 13))
                     .foregroundStyle(.tertiary)
                     .padding(.top, 2)
@@ -571,7 +571,7 @@ struct ComposerView: View {
                     .frame(width: size + 4, height: size + 4)
                     .contentShape(Circle())
             }
-            .help("Stop generating")
+            .help(L("Stop generating"))
         } else {
             let button = Button(action: submitFromButton) {
                 Image(systemName: "arrow.up.circle.fill")
@@ -584,10 +584,10 @@ struct ComposerView: View {
             if let sendShortcut {
                 button
                     .keyboardShortcut(sendShortcut)
-                    .help("Send (⌘↩)")
+                    .help(L("Send (⌘↩)"))
             } else {
                 button
-                    .help("Send")
+                    .help(L("Send"))
             }
         }
     }
@@ -633,7 +633,7 @@ struct ComposerView: View {
     private var completionCandidates: [PromptShortcut] {
         guard !editorMode, draft.hasPrefix("/"), !draft.contains(" ") else { return [] }
         let query = String(draft.dropFirst()).lowercased()
-        return shortcutStore.shortcuts.filter {
+        return shortcutStore.allCommands.filter {
             query.isEmpty || $0.name.lowercased().hasPrefix(query)
         }
     }
@@ -707,7 +707,7 @@ struct ComposerView: View {
                             .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
-                    .help("Dismiss")
+                    .help(L("Dismiss"))
                 }
             }
             // No dismiss here: this one is DERIVED (re-resolves live from the
@@ -741,13 +741,13 @@ struct ComposerView: View {
             if case .image = $0.content { return true } else { return false }
         }
         if hasImages, capabilities.images == false {
-            return "\(modelName) doesn't accept images — pick another model, or this send will likely be rejected."
+            return L("{0} doesn't accept images — pick another model, or this send will likely be rejected.", modelName)
         }
         let hasTextlessPDF = model.pendingAttachments.contains {
             if case .pdf(_, let extractedText) = $0.content { return extractedText.isEmpty } else { return false }
         }
         if hasTextlessPDF, capabilities.files != true {
-            return "A scanned PDF has no extractable text, and \(modelName) doesn't take PDF files directly — its content can't be sent."
+            return L("A scanned PDF has no extractable text, and {0} doesn't take PDF files directly — its content can't be sent.", modelName)
         }
         return nil
     }
@@ -830,7 +830,7 @@ private struct AttachmentChip: View {
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .help("Remove attachment")
+            .help(L("Remove attachment"))
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)

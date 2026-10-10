@@ -110,17 +110,17 @@ final class UpdateChecker: ObservableObject {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse else {
-                return .failure("Unexpected response from GitHub.")
+                return .failure(L("Unexpected response from GitHub."))
             }
             switch http.statusCode {
             case 200:
                 return .success(decodeRelease(data))
             case 403, 429:
-                return .failure("GitHub is rate-limiting update checks — try again later.")
+                return .failure(L("GitHub is rate-limiting update checks — try again later."))
             case 404:
                 return .success(nil) // no releases published yet
             default:
-                return .failure("GitHub returned HTTP \(http.statusCode).")
+                return .failure(L("GitHub returned HTTP {0}.", "\(http.statusCode)"))
             }
         } catch {
             return .failure(error.localizedDescription)

@@ -1,0 +1,5 @@
+/* PopChat English table.
+   The source code's English literals ARE the fallback, so this table stays
+   empty by design: lookup misses return the key (the English text). The file
+   exists so the en.lproj directory is present and `Locale.preferredLocalizations`
+   matching is deterministic. */

@@ -192,7 +192,7 @@ enum ChatGPTAuth {
                     case .failed(let error):
                         if resumed.claim() {
                             continuation.resume(throwing: AuthError(
-                                message: "Couldn't listen on localhost:\(redirectPort) for the sign-in redirect (\(error.localizedDescription)). Is another app (or Codex CLI login) using that port?"
+                                message: L("Couldn't listen on localhost:{0} for the sign-in redirect ({1}). Is another app (or Codex CLI login) using that port?", "\(redirectPort)", error.localizedDescription)
                             ))
                         }
                     case .cancelled:
@@ -229,7 +229,7 @@ enum ChatGPTAuth {
                             respond(
                                 connection,
                                 status: "200 OK",
-                                body: "<html><body style=\"font-family:-apple-system;text-align:center;padding-top:80px\"><h2>Sign-in failed</h2><p>\(htmlEscape(error.message))</p></body></html>"
+                                body: "<html><body style=\"font-family:-apple-system;text-align:center;padding-top:80px\"><h2>" + htmlEscape(L("Sign-in failed")) + "</h2><p>" + htmlEscape(error.message) + "</p></body></html>"
                             )
                             if resumed.claim() {
                                 listener.stateUpdateHandler = nil
@@ -304,11 +304,11 @@ enum ChatGPTAuth {
         // one with an `error` param — can't tear down a legitimate pending sign-in.
         guard query("state") == expectedState else { return nil }
         if let error = query("error") {
-            let description = query("error_description") ?? "no details"
-            return .failure(AuthError(message: "OpenAI refused the sign-in: \(error) (\(description))"))
+            let description = query("error_description") ?? L("no details")
+            return .failure(AuthError(message: L("OpenAI refused the sign-in: {0} ({1})", error, description)))
         }
         guard let code = query("code") else {
-            return .failure(AuthError(message: "Redirect arrived without an authorization code."))
+            return .failure(AuthError(message: L("Redirect arrived without an authorization code.")))
         }
         return .success(code)
     }
@@ -360,7 +360,7 @@ enum ChatGPTAuth {
     /// access hops to the main actor (its documented invariant).
     static func validCredentials() async throws -> (accessToken: String, accountID: String) {
         guard let tokens = await MainActor.run(body: { loadTokens() }) else {
-            throw AuthError(message: "Not signed in to ChatGPT — open Settings → Providers and sign in.")
+            throw AuthError(message: L("Not signed in to ChatGPT — open Settings → Providers and sign in."))
         }
         if tokens.expiresAt > Date().addingTimeInterval(60) {
             return (tokens.accessToken, tokens.accountID)
@@ -396,7 +396,7 @@ enum ChatGPTAuth {
             if let code = error.statusCode, code == 400 || code == 401 {
                 await MainActor.run { signOut() }
             }
-            throw AuthError(message: "ChatGPT session expired and refresh failed (\(error.message)). Sign in again in Settings → Providers.")
+            throw AuthError(message: L("ChatGPT session expired and refresh failed ({0}). Sign in again in Settings → Providers.", error.message))
         }
         let updated = try buildTokens(from: response, previous: tokens)
         await MainActor.run { save(updated) }
@@ -416,18 +416,18 @@ enum ChatGPTAuth {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else {
-            throw AuthError(message: "Unexpected response from the token endpoint.")
+            throw AuthError(message: L("Unexpected response from the token endpoint."))
         }
         guard http.statusCode == 200 else {
             let body = String(decoding: data.prefix(300), as: UTF8.self)
-            throw AuthError(message: "Token endpoint returned HTTP \(http.statusCode): \(body)", statusCode: http.statusCode)
+            throw AuthError(message: L("Token endpoint returned HTTP {0}: {1}", "\(http.statusCode)", body), statusCode: http.statusCode)
         }
         return try JSONDecoder().decode(TokenResponse.self, from: data)
     }
 
     private static func buildTokens(from response: TokenResponse, previous: Tokens?) throws -> Tokens {
         guard let refreshToken = response.refreshToken ?? previous?.refreshToken else {
-            throw AuthError(message: "OpenAI returned no refresh token — sign in again.")
+            throw AuthError(message: L("OpenAI returned no refresh token — sign in again."))
         }
         let idToken = response.idToken ?? previous?.idToken ?? ""
         let idClaims = decodeJWTClaims(idToken)
@@ -436,7 +436,7 @@ enum ChatGPTAuth {
         // Same extraction order as opencode: id token first, then access token;
         // top-level claim, then the proprietary auth claim, then first org.
         guard let accountID = accountID(in: idClaims) ?? accountID(in: accessClaims) else {
-            throw AuthError(message: "Sign-in succeeded but no ChatGPT account id was found in the token. Is this a ChatGPT (not API-platform) account?")
+            throw AuthError(message: L("Sign-in succeeded but no ChatGPT account id was found in the token. Is this a ChatGPT (not API-platform) account?"))
         }
 
         let authClaim = (accessClaims?["https://api.openai.com/auth"] ?? idClaims?["https://api.openai.com/auth"]) as? [String: Any]
@@ -477,7 +477,7 @@ enum ChatGPTAuth {
         var bytes = [UInt8](repeating: 0, count: count)
         guard SecRandomCopyBytes(kSecRandomDefault, count, &bytes) == errSecSuccess else {
             // Never derive PKCE/state from the zero buffer — that would void both.
-            throw AuthError(message: "Couldn't generate secure random data for sign-in. Try again.")
+            throw AuthError(message: L("Couldn't generate secure random data for sign-in. Try again."))
         }
         return base64URL(Data(bytes))
     }

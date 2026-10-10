@@ -11,11 +11,11 @@ struct SettingsView: View {
         var id: String { rawValue }
         var label: String {
             switch self {
-            case .general: "General"
-            case .providers: "Providers"
-            case .webSearch: "Web Search"
-            case .commands: "Commands"
-            case .hotkey: "Hotkey"
+            case .general: L("General")
+            case .providers: L("Providers")
+            case .webSearch: L("Web Search")
+            case .commands: L("Commands")
+            case .hotkey: L("Hotkey")
             }
         }
         var icon: String {
@@ -52,6 +52,8 @@ struct SettingsView: View {
 
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var loginItemError: String?
+    /// Bumped on a language-override change so the picker's own label re-renders.
+    @State private var languageTick = 0
 
     // ChatGPT sign-in state. Auth itself lives in ChatGPTAuth (SecretStore-backed);
     // `chatGPTAuthTick` just forces re-render after sign-in/out completes.
@@ -139,7 +141,7 @@ struct SettingsView: View {
     private var generalTab: some View {
         Form {
             Section {
-                Toggle("Launch PopChat at login", isOn: $launchAtLogin)
+                Toggle(L("Launch PopChat at login"), isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, enabled in
                         do {
                             if enabled {
@@ -149,7 +151,7 @@ struct SettingsView: View {
                             }
                             loginItemError = nil
                         } catch {
-                            loginItemError = "Couldn't update login item: \(error.localizedDescription)"
+                            loginItemError = L("Couldn't update login item: {0}", error.localizedDescription)
                             launchAtLogin = SMAppService.mainApp.status == .enabled
                         }
                     }
@@ -161,16 +163,16 @@ struct SettingsView: View {
             }
             Section {
                 updateRow
-                Toggle("Check for updates automatically", isOn: $automaticUpdateChecks)
+                Toggle(L("Check for updates automatically"), isOn: $automaticUpdateChecks)
             } footer: {
-                Text("PopChat checks GitHub Releases once a day and tells you when a newer version exists. It never downloads or installs anything — updating is opening the release page and dragging the new build to Applications, same as the first time.")
+                Text(L("PopChat checks GitHub Releases once a day and tells you when a newer version exists. It never downloads or installs anything — updating is opening the release page and dragging the new build to Applications, same as the first time."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Section {
                 appearanceRow
                 accentRow
-                Picker("Your message style", selection: $bubbleStyleRaw) {
+                Picker(L("Your message style"), selection: $bubbleStyleRaw) {
                     ForEach(BubbleStyle.allCases) { style in
                         Text(style.label).tag(style.rawValue)
                     }
@@ -178,7 +180,7 @@ struct SettingsView: View {
                 .pickerStyle(.segmented)
                 liquidGlassRow
                 panelTintRow
-                Picker("Streaming text", selection: $streamingModeRaw) {
+                Picker(L("Streaming text"), selection: $streamingModeRaw) {
                     ForEach(StreamingMode.allCases) { mode in
                         Text(mode.label).tag(mode.rawValue)
                     }
@@ -186,11 +188,38 @@ struct SettingsView: View {
                 .pickerStyle(.segmented)
                 previewRow
             } header: {
-                Text("Chat Style")
+                Text(L("Chat Style"))
             } footer: {
-                Text("Applies to your messages in the panel. Custom opens a picker for any accent color; Accent fill flips its text between black and white for whichever reads better. Streaming text: Per-character fades in glyph by glyph, Per-sentence commits a sentence at a time. Defaults: Accent tint, Blue, Per-character streaming. Panel tint defaults to the system glass appearance; the slider overrides it for PopChat only. Reduce Transparency always wins.")
+                Text(L("Applies to your messages in the panel. Custom opens a picker for any accent color; Accent fill flips its text between black and white for whichever reads better. Streaming text: Per-character fades in glyph by glyph, Per-sentence commits a sentence at a time. Defaults: Accent tint, Blue, Per-character streaming. Panel tint defaults to the system glass appearance; the slider overrides it for PopChat only. Reduce Transparency always wins."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+            Section {
+                languageRow
+            } footer: {
+                Text(L("Follow the macOS language; switch here to override it for PopChat only."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .onLanguageChange { languageTick += 1 }
+    }
+
+    /// Live language override (follow-system / English / 简体中文). `LanguageChoice.apply`
+    /// posts the change notification; the section re-renders through `languageTick`
+    /// so the picker's own label switches at once.
+    private var languageRow: some View {
+        let _ = languageTick
+        return Picker(L("Language"), selection: Binding(
+            get: {
+                LanguageChoice(rawValue: UserDefaults.standard.string(forKey: L10n.languageKey) ?? "system") ?? .system
+            },
+            set: { choice in
+                choice.apply()
+            }
+        )) {
+            ForEach(LanguageChoice.allCases) { choice in
+                Text(choice.label).tag(choice)
             }
         }
     }
@@ -203,15 +232,15 @@ struct SettingsView: View {
                 case .idle:
                     EmptyView()
                 case .checking:
-                    Text("Checking…")
+                    Text(L("Checking…"))
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                 case .upToDate:
-                    Text("Up to date")
+                    Text(L("Up to date"))
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                 case .available(let release):
-                    Text("Version \(release.version) is available")
+                    Text(L("Version {0} is available", release.version))
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.color(accentHex))
                 case .failed(let message):
@@ -223,10 +252,10 @@ struct SettingsView: View {
             }
             Spacer()
             if let release = updates.availableRelease {
-                Link("What's new…", destination: release.page)
+                Link(L("What's new…"), destination: release.page)
                     .font(.system(size: 11))
             }
-            Button("Check Now") { updates.check(userInitiated: true) }
+            Button(L("Check Now")) { updates.check(userInitiated: true) }
                 .disabled(updates.state == .checking)
         }
     }
@@ -234,7 +263,7 @@ struct SettingsView: View {
     /// Auto / Light / Dark (4f). Applied through NSApp.appearance so every
     /// window flips together; Auto (nil) tracks the system live.
     private var appearanceRow: some View {
-        Picker("Appearance", selection: $appearanceRaw) {
+        Picker(L("Appearance"), selection: $appearanceRaw) {
             ForEach(AppearanceChoice.allCases) { choice in
                 Text(choice.label).tag(choice.rawValue)
             }
@@ -251,7 +280,7 @@ struct SettingsView: View {
     /// preset and coming back doesn't lose it.
     private var accentRow: some View {
         HStack(spacing: 2) {
-            Text("Accent color")
+            Text(L("Accent color"))
             Spacer()
             ForEach(Theme.accentOptions, id: \.self) { hex in
                 accentSwatch(hex)
@@ -261,7 +290,7 @@ struct SettingsView: View {
                 .frame(width: 1, height: 16)
                 .padding(.horizontal, 7)
             CustomAccentSwatch(accentHex: $accentHex, customHex: $customAccentHex)
-            Text("Custom")
+            Text(L("Custom"))
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .padding(.leading, 3)
@@ -290,11 +319,11 @@ struct SettingsView: View {
 
     private var liquidGlassRow: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Toggle("Liquid glass", isOn: reduceTransparency ? .constant(false) : $liquidGlass)
+            Toggle(L("Liquid glass"), isOn: reduceTransparency ? .constant(false) : $liquidGlass)
                 .disabled(reduceTransparency)
             Text(reduceTransparency
-                ? "Off because Reduce Transparency is enabled in System Settings."
-                : "Turn off for a solid panel and lower GPU use")
+                ? L("Off because Reduce Transparency is enabled in System Settings.")
+                : L("Turn off for a solid panel and lower GPU use"))
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
         }
@@ -305,9 +334,9 @@ struct SettingsView: View {
     private var panelTintRow: some View {
         let disabled = !liquidGlass || reduceTransparency
         return HStack(spacing: 8) {
-            Text("Panel tint")
+            Text(L("Panel tint"))
             Spacer()
-            Text("Clear")
+            Text(L("Clear"))
                 .font(.system(size: 10.5))
                 .foregroundStyle(.tertiary)
             Slider(
@@ -319,7 +348,7 @@ struct SettingsView: View {
             )
             .labelsHidden()
             .frame(width: 180)
-            Text("Tinted")
+            Text(L("Tinted"))
                 .font(.system(size: 10.5))
                 .foregroundStyle(.tertiary)
         }
@@ -330,10 +359,10 @@ struct SettingsView: View {
     private var previewRow: some View {
         let style = BubbleStyle(rawValue: bubbleStyleRaw) ?? .accentTint
         return HStack {
-            Text("Preview")
+            Text(L("Preview"))
                 .foregroundStyle(.secondary)
             Spacer()
-            Text("Looks good — ship it")
+            Text(L("Looks good — ship it"))
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.bubbleForeground(style: style, accentHex: accentHex))
                 .padding(.vertical, 9)
@@ -389,7 +418,7 @@ struct SettingsView: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: editingID)
-                Text("The live provider and model are picked from the pill in the chat panel — this list only manages what shows up there. Keys are stored locally, never synced.")
+                Text(L("The live provider and model are picked from the pill in the chat panel — this list only manages what shows up there. Keys are stored locally, never synced."))
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -406,17 +435,17 @@ struct SettingsView: View {
             if let id = initialEditingID { toggleEditor(id) }
         }
         .confirmationDialog(
-            "Remove “\(store.providers.first { $0.id == providerPendingDeletion }?.name ?? "")”?",
+            L("Remove “{0}”?", store.providers.first { $0.id == providerPendingDeletion }?.name ?? ""),
             isPresented: Binding(get: { providerPendingDeletion != nil }, set: { if !$0 { providerPendingDeletion = nil } }),
             titleVisibility: .visible
         ) {
-            Button("Remove Provider", role: .destructive) {
+            Button(L("Remove Provider"), role: .destructive) {
                 if let id = providerPendingDeletion { store.remove(id) }
                 providerPendingDeletion = nil
             }
-            Button("Cancel", role: .cancel) { providerPendingDeletion = nil }
+            Button(L("Cancel"), role: .cancel) { providerPendingDeletion = nil }
         } message: {
-            Text("Its API key and fetched model list are deleted too.")
+            Text(L("Its API key and fetched model list are deleted too."))
         }
     }
 
@@ -447,9 +476,9 @@ struct SettingsView: View {
                     // One badge per row: "Free" states the more useful fact
                     // (template rows are custom too — still deletable).
                     if provider.freeTemplate != nil {
-                        providerBadge("Free", tint: .green)
+                        providerBadge(L("Free"), tint: .green)
                     } else if !provider.isPreset {
-                        providerBadge("Custom", tint: nil)
+                        providerBadge(L("Custom"), tint: nil)
                     }
                 }
                 Text(providerSubtitle(provider))
@@ -471,7 +500,7 @@ struct SettingsView: View {
         .onTapGesture { toggleEditor(provider.id) }
         .contextMenu {
             if !provider.isPreset {
-                Button("Remove Provider…", role: .destructive) {
+                Button(L("Remove Provider…"), role: .destructive) {
                     providerPendingDeletion = provider.id
                 }
             }
@@ -495,12 +524,12 @@ struct SettingsView: View {
     private var addProviderRow: some View {
         HStack {
             Menu {
-                Button("Custom…") {
+                Button(L("Custom…")) {
                     let id = store.addCustom()
                     keyDraft = ""
                     editingID = id
                 }
-                Section("Free tiers") {
+                Section(L("Free tiers")) {
                     ForEach(FreeProviderTemplate.all) { template in
                         Button(template.name) {
                             let id = store.addTemplate(template)
@@ -510,11 +539,11 @@ struct SettingsView: View {
                     }
                 }
                 Divider()
-                Button("More free APIs…") {
+                Button(L("More free APIs…")) {
                     NSWorkspace.shared.open(FreeProviderTemplate.directoryURL)
                 }
             } label: {
-                Text("Add Provider…")
+                Text(L("Add Provider…"))
             }
             .fixedSize()
             Spacer()
@@ -533,36 +562,36 @@ struct SettingsView: View {
     private func providerSubtitle(_ provider: Provider) -> String {
         if provider.kind == .chatGPT {
             _ = chatGPTAuthTick
-            guard ChatGPTAuth.isSignedIn else { return "Not signed in · unofficial direct access" }
-            return "Signed in · \(ChatGPTAuth.planLabel ?? "your ChatGPT plan") · unofficial"
+            guard ChatGPTAuth.isSignedIn else { return L("Not signed in · unofficial direct access") }
+            return L("Signed in · {0} · unofficial", ChatGPTAuth.planLabel ?? L("your ChatGPT plan"))
         }
         if provider.kind == .codexAppServer {
             switch store.codexAppServerStatus {
-            case .unknown: return "Not checked"
-            case .checking: return "Checking installed Codex…"
+            case .unknown: return L("Not checked")
+            case .checking: return L("Checking installed Codex…")
             case .ready(let email, let plan):
                 let detail = [email, plan].compactMap { $0 }.joined(separator: " · ")
-                return detail.isEmpty ? "Installed Codex · signed in" : "Installed Codex · \(detail)"
-            case .missing: return "Codex not found · install it yourself"
-            case .notSignedIn: return "Codex installed · run codex login"
-            case .failed: return "Codex app-server unavailable"
+                return detail.isEmpty ? L("Installed Codex · signed in") : L("Installed Codex · {0}", detail)
+            case .missing: return L("Codex not found · install it yourself")
+            case .notSignedIn: return L("Codex installed · run codex login")
+            case .failed: return L("Codex app-server unavailable")
             }
         }
         let host = URL(string: provider.baseURL)?.host ?? provider.baseURL
         let isLocal = ["localhost", "127.0.0.1"].contains(host)
         guard store.isConfigured(provider) else {
-            if provider.baseURL.isEmpty { return "Not set up" }
+            if provider.baseURL.isEmpty { return L("Not set up") }
             // A local server needs no key, so "Needs API key" would send the user
             // looking for one that doesn't exist — it needs a model list instead.
-            return isLocal ? "\(host) · no models fetched" : "Needs API key"
+            return isLocal ? L("{0} · no models fetched", host) : L("Needs API key")
         }
         var parts = [host.isEmpty ? provider.baseURL : host]
         let count = store.knownModels[provider.id]?.count ?? 0
         if count > 0 {
-            parts.append("\(count) model\(count == 1 ? "" : "s")")
+            parts.append(L("{0} models", "\(count)"))
         }
         if isLocal, store.key(for: provider.id).isEmpty {
-            parts.append("no key needed")
+            parts.append(L("no key needed"))
         }
         return parts.joined(separator: " · ")
     }
@@ -604,15 +633,15 @@ struct SettingsView: View {
                     freeTierNotice(template)
                 }
                 if !provider.isPreset {
-                    editorField("Name") {
+                    editorField(L("Name")) {
                         TextField("", text: $store.providers[index].name)
                     }
                 }
-                editorField("Base URL") {
+                editorField(L("Base URL")) {
                     TextField("", text: $store.providers[index].baseURL)
-                        .help("Include /v1 where the provider requires it; local servers (Ollama, LM Studio) need no key.")
+                        .help(L("Include /v1 where the provider requires it; local servers (Ollama, LM Studio) need no key."))
                 }
-                editorField("API Key") {
+                editorField(L("API Key")) {
                     SecureField("", text: $keyDraft)
                         .onChange(of: keyDraft) { _, newValue in
                             store.setKey(newValue, for: provider.id)
@@ -623,7 +652,7 @@ struct SettingsView: View {
                 }
             }
             modelRow(for: provider)
-            Text("Used when this provider is picked for the first time; after that the pill remembers your last model per provider.")
+            Text(L("Used when this provider is picked for the first time; after that the pill remembers your last model per provider."))
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -635,7 +664,7 @@ struct SettingsView: View {
             }
             capabilityRows(provider)
             if !provider.isPreset {
-                Button("Remove Provider…", role: .destructive) {
+                Button(L("Remove Provider…"), role: .destructive) {
                     providerPendingDeletion = provider.id
                 }
                 .buttonStyle(.plain)
@@ -658,7 +687,7 @@ struct SettingsView: View {
     /// (the Add Provider menu links the full catalog).
     private func freeTierNotice(_ template: FreeProviderTemplate) -> some View {
         let caveat = template.note.map { " — \($0)" } ?? ""
-        return Text(.init("Free tier · [Get an API key](\(template.keyURL))\(caveat). Paste it below, then fetch the model list with ↻."))
+        return Text(.init(L("Free tier · [Get an API key]({0}){1}. Paste it below, then fetch the model list with ↻.", template.keyURL, caveat)))
             .font(.system(size: 11))
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
@@ -671,9 +700,9 @@ struct SettingsView: View {
     private func pdfPassThroughRow(_ provider: Provider) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             VStack(alignment: .leading, spacing: 1) {
-                Text("Send PDFs directly")
+                Text(L("Send PDFs directly"))
                     .font(.system(size: 12.5))
-                Text("Sends the original PDF as a file content part instead of extracted text. Turn on only if this endpoint accepts file input — many proxies reject or strip it.")
+                Text(L("Sends the original PDF as a file content part instead of extracted text. Turn on only if this endpoint accepts file input — many proxies reject or strip it."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -701,7 +730,7 @@ struct SettingsView: View {
         let exceptions = (store.capabilityExceptions[provider.id] ?? [:]).sorted { $0.key < $1.key }
         if !exceptions.isEmpty {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Attachment exceptions")
+                Text(L("Attachment exceptions"))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.secondary)
                 ForEach(exceptions, id: \.key) { model, exception in
@@ -724,7 +753,7 @@ struct SettingsView: View {
                                 .contentShape(Circle())
                         }
                         .buttonStyle(.plain)
-                        .help("Clear — PopChat will try again on the next send")
+                        .help(L("Clear — PopChat will try again on the next send"))
                     }
                 }
             }
@@ -735,26 +764,26 @@ struct SettingsView: View {
     private func capabilityNotice(_ provider: Provider) -> String {
         switch provider.kind {
         case .chatGPT, .codexAppServer:
-            return "Images are sent to the model; PDFs go as extracted text (this route has no file upload)."
+            return L("Images are sent to the model; PDFs go as extracted text (this route has no file upload).")
         case .openAICompatible:
             if provider.isPreset, provider.baseURL.contains("api.openai.com") {
-                return "Images and PDFs are sent to the model directly; one that rejects them shows an explicit error."
+                return L("Images and PDFs are sent to the model directly; one that rejects them shows an explicit error.")
             }
             if provider.isPreset, provider.baseURL.contains("openrouter.ai") {
-                return "Image and PDF support is detected per model from OpenRouter's catalog."
+                return L("Image and PDF support is detected per model from OpenRouter's catalog.")
             }
             if provider.isPreset {
-                return "Image support is detected per model from Ollama; PDFs are sent as extracted text."
+                return L("Image support is detected per model from Ollama; PDFs are sent as extracted text.")
             }
-            return "Images are sent optimistically — a model that rejects them shows an explicit error and is remembered below."
+            return L("Images are sent optimistically — a model that rejects them shows an explicit error and is remembered below.")
         }
     }
 
     private static func exceptionLabel(_ exception: CapabilityException) -> String {
         var refusals: [String] = []
-        if exception.images == false { refusals.append("no images") }
-        if exception.files == false { refusals.append("no direct PDFs") }
-        let source = exception.source == .learned ? "recorded" : "manual"
+        if exception.images == false { refusals.append(L("no images")) }
+        if exception.files == false { refusals.append(L("no direct PDFs")) }
+        let source = exception.source == .learned ? L("recorded") : L("manual")
         return "\(refusals.joined(separator: ", ")) · \(source)"
     }
 
@@ -787,7 +816,7 @@ struct SettingsView: View {
             HStack {
                 Label {
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Signed in with ChatGPT")
+                        Text(L("Signed in with ChatGPT"))
                         let detail = [ChatGPTAuth.accountEmail, ChatGPTAuth.planLabel]
                             .compactMap { $0 }.joined(separator: " · ")
                         if !detail.isEmpty {
@@ -801,7 +830,7 @@ struct SettingsView: View {
                         .foregroundStyle(.green)
                 }
                 Spacer()
-                Button("Sign Out", role: .destructive) {
+                Button(L("Sign Out"), role: .destructive) {
                     ChatGPTAuth.signOut()
                     chatGPTAuthTick.toggle()
                 }
@@ -809,10 +838,10 @@ struct SettingsView: View {
         } else if chatGPTSignInTask != nil {
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)
-                Text("Waiting for the browser sign-in…")
+                Text(L("Waiting for the browser sign-in…"))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("Cancel") {
+                Button(L("Cancel")) {
                     chatGPTSignInGeneration += 1
                     chatGPTSignInTask?.cancel()
                     chatGPTSignInTask = nil
@@ -821,13 +850,13 @@ struct SettingsView: View {
         } else {
             HStack {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Use your ChatGPT subscription")
-                    Text("Opens chatgpt.com to authorize. Works with Plus/Pro; usage counts against your plan's limits.")
+                    Text(L("Use your ChatGPT subscription"))
+                    Text(L("Opens chatgpt.com to authorize. Works with Plus/Pro; usage counts against your plan's limits."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Sign in with ChatGPT") {
+                Button(L("Sign in with ChatGPT")) {
                     chatGPTAuthError = nil
                     chatGPTSignInGeneration += 1
                     let generation = chatGPTSignInGeneration
@@ -861,7 +890,7 @@ struct SettingsView: View {
                 .foregroundStyle(.red)
         }
         Label {
-            Text("Risk warning: this direct subscription route is unofficial. It calls a ChatGPT/Codex backend that is not documented for third-party apps, so it may stop working and may carry account or terms risk. Prefer the separate Codex app-server provider when possible.")
+            Text(L("Risk warning: this direct subscription route is unofficial. It calls a ChatGPT/Codex backend that is not documented for third-party apps, so it may stop working and may carry account or terms risk. Prefer the separate Codex app-server provider when possible."))
         } icon: {
             Image(systemName: "exclamationmark.triangle.fill")
         }
@@ -874,10 +903,10 @@ struct SettingsView: View {
     /// PopChat, so there is deliberately no install or sign-in button here.
     @ViewBuilder
     private var codexAppServerRows: some View {
-        editorField("Codex path") {
+        editorField(L("Codex path")) {
             HStack(spacing: 6) {
-                TextField("Auto-detect", text: $codexExecutablePath)
-                    .help("Leave empty to auto-detect (PopChat checks common install locations, then asks your login shell), or enter the path `which codex` prints in Terminal.")
+                TextField(L("Auto-detect"), text: $codexExecutablePath)
+                    .help(L("Leave empty to auto-detect (PopChat checks common install locations, then asks your login shell), or enter the path `which codex` prints in Terminal."))
                     .onChange(of: codexExecutablePath) { _, _ in
                         // Not just a status reset: this also bumps the generation so a
                         // check already running against the OLD path cannot publish
@@ -885,38 +914,38 @@ struct SettingsView: View {
                         // the switcher will actually re-probe the corrected path.
                         store.invalidateCodexAppServer()
                     }
-                Button("Locate…") { locateCodexExecutable() }
-                    .help("Choose the codex executable — the file `which codex` points at.")
+                Button(L("Locate…")) { locateCodexExecutable() }
+                    .help(L("Choose the codex executable — the file `which codex` points at."))
             }
         }
         HStack(spacing: 8) {
             switch store.codexAppServerStatus {
             case .checking:
                 ProgressView().controlSize(.small)
-                Text("Starting codex app-server and checking the account…")
+                Text(L("Starting codex app-server and checking the account…"))
                     .foregroundStyle(.secondary)
             case .ready(let email, let plan):
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
                 let detail = [email, plan].compactMap { $0 }.joined(separator: " · ")
-                Text(detail.isEmpty ? "Signed in with ChatGPT" : detail)
+                Text(detail.isEmpty ? L("Signed in with ChatGPT") : detail)
             case .missing:
                 Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
                 // The user's next question is always "then what path do I enter?"
                 // — answer it here, where the field is.
-                Text("Codex not found — run `which codex` in Terminal and paste the result above, or click Locate…")
+                Text(L("Codex not found — run `which codex` in Terminal and paste the result above, or click Locate…"))
                     .lineLimit(3)
             case .notSignedIn:
                 Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.orange)
-                Text("Codex is not signed in with ChatGPT")
+                Text(L("Codex is not signed in with ChatGPT"))
             case .failed(let message):
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red)
                 Text(message).lineLimit(2)
             case .unknown:
                 Image(systemName: "questionmark.circle").foregroundStyle(.secondary)
-                Text("Not checked yet").foregroundStyle(.secondary)
+                Text(L("Not checked yet")).foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
-            Button("Check Again") {
+            Button(L("Check Again")) {
                 Task { await store.refreshCodexAppServer(includeModels: true) }
             }
             .disabled(store.codexAppServerStatus == .checking)
@@ -924,7 +953,7 @@ struct SettingsView: View {
         .font(.caption)
 
         Label {
-            Text("You must install and maintain Codex yourself, then run `codex login` in Terminal. PopChat does not install Codex or copy its credentials; it only starts your local `codex app-server` process. The app-server protocol is experimental, so a Codex update may occasionally be required.")
+            Text(L("You must install and maintain Codex yourself, then run `codex login` in Terminal. PopChat does not install Codex or copy its credentials; it only starts your local `codex app-server` process. The app-server protocol is experimental, so a Codex update may occasionally be required."))
         } icon: {
             Image(systemName: "info.circle.fill")
         }
@@ -932,12 +961,12 @@ struct SettingsView: View {
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
 
-        Text("Chat-only safety: PopChat requests ephemeral read-only threads with approval policy Never, and launches Codex with shell/exec, MCP, plugins/connectors, subagents, and other machine tools disabled. Managed Codex policy may override client settings, so app-server remains a local process you should trust and maintain.")
+        Text(L("Chat-only safety: PopChat requests ephemeral read-only threads with approval policy Never, and launches Codex with shell/exec, MCP, plugins/connectors, subagents, and other machine tools disabled. Managed Codex policy may override client settings, so app-server remains a local process you should trust and maintain."))
             .font(.caption)
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
 
-        Text("Web search: Codex runs its own web search, switched by the globe in the chat input. The engine choice and round cap in Settings → Web Search don't apply to this provider.")
+        Text(L("Web search: Codex runs its own web search, switched by the globe in the chat input. The engine choice and round cap in Settings → Web Search don't apply to this provider."))
             .font(.caption)
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
@@ -952,7 +981,7 @@ struct SettingsView: View {
         panel.allowsMultipleSelection = false
         // codex usually lives in a hidden directory (~/.nvm, ~/.local, /usr/local).
         panel.showsHiddenFiles = true
-        panel.message = "Select the codex executable (the path `which codex` prints in Terminal)."
+        panel.message = L("Select the codex executable (the path `which codex` prints in Terminal).")
         let current = codexExecutablePath.trimmingCharacters(in: .whitespacesAndNewlines)
         if !current.isEmpty {
             panel.directoryURL = URL(fileURLWithPath: current).deletingLastPathComponent()
@@ -969,20 +998,20 @@ struct SettingsView: View {
     private var webSearchTab: some View {
         Form {
             Section {
-                Toggle("Web access available to the model", isOn: $webEnabled)
-                Picker("Search engine", selection: $searchEngine) {
+                Toggle(L("Web access available to the model"), isOn: $webEnabled)
+                Picker(L("Search engine"), selection: $searchEngine) {
                     ForEach(SearchEngineChoice.allCases) { choice in
                         Text(choice.label).tag(choice.rawValue)
                     }
                 }
                 if let account = SearchEngineChoice(rawValue: searchEngine)?.apiKeyAccount {
-                    SecureField("Search API Key", text: $searchKeyDraft)
+                    SecureField(L("Search API Key"), text: $searchKeyDraft)
                         .onChange(of: searchKeyDraft) { _, newValue in
                             SecretStore.set(newValue, account: account)
                         }
                 }
             } footer: {
-                Text("The model decides when to search (max 5 tool rounds).")
+                Text(L("The model decides when to search (max 5 tool rounds)."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .help("web_search + fetch_url tools. Provider-native uses OpenRouter's server-side plugin and only applies when OpenRouter is the active provider; other choices fall back to DuckDuckGo with a visible notice.")
@@ -1006,7 +1035,7 @@ struct SettingsView: View {
                             .scrollContentBackground(.hidden)
                             .frame(height: 148)
                     }
-                    Button("Reset to Default") {
+                    Button(L("Reset to Default")) {
                         systemPromptDraft = ChatStore.defaultSystemPrompt
                     }
                     .disabled(systemPromptDraft == ChatStore.defaultSystemPrompt)
@@ -1015,9 +1044,9 @@ struct SettingsView: View {
                     UserDefaults.standard.set(newValue, forKey: "systemPrompt")
                 }
             } header: {
-                Text("System Prompt")
+                Text(L("System Prompt"))
             } footer: {
-                Text("Sent with every conversation. The default teaches the model PopChat's pasteable-block format; clear it to send no system prompt.")
+                Text(L("Sent with every conversation. The default teaches the model PopChat's pasteable-block format; clear it to send no system prompt."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .help("Content the model wraps in <pasteable title=\"…\"> … </pasteable> tags is rendered as a copyable card in the transcript.")
@@ -1029,7 +1058,7 @@ struct SettingsView: View {
                             Text("/")
                                 .foregroundStyle(.secondary)
                                 .padding(.leading, 4)
-                            TextField("name", text: $shortcut.name)
+                            TextField(L("name"), text: $shortcut.name)
                                 .textFieldStyle(.plain)
                                 .font(.system(size: 13, weight: .medium))
                                 .focused($focusedCommandName, equals: shortcut.id)
@@ -1055,7 +1084,7 @@ struct SettingsView: View {
                                     .contentShape(Circle())
                             }
                             .buttonStyle(.plain)
-                            .help("Delete command")
+                            .help(L("Delete command"))
                         }
                         editorWell {
                             TextEditor(text: $shortcut.template)
@@ -1064,7 +1093,7 @@ struct SettingsView: View {
                                 .frame(height: 56)
                                 .overlay(alignment: .topLeading) {
                                     if shortcut.template.isEmpty {
-                                        Text("Prompt template — {input} marks where your text goes")
+                                        Text(L("Prompt template — {input} marks where your text goes"))
                                             .font(.system(size: 12))
                                             .foregroundStyle(.tertiary)
                                             .padding(.leading, 5)
@@ -1075,14 +1104,14 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 2)
                 }
-                Button("Add Command…") {
+                Button(L("Add Command…")) {
                     shortcutStore.add()
                     // Focus lands after the new row exists in the hierarchy.
                     let newID = shortcutStore.shortcuts.last?.id
                     DispatchQueue.main.async { focusedCommandName = newID }
                 }
             } footer: {
-                Text("Type “/name your text” in the chat field.")
+                Text(L("Type “/name your text” in the chat field."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .help("The compact form is shown in the transcript; the expanded template is what the model receives.")
@@ -1110,9 +1139,9 @@ struct SettingsView: View {
     private var hotkeyTab: some View {
         Form {
             Section {
-                KeyboardShortcuts.Recorder("Toggle PopChat:", name: .togglePopChat)
+                KeyboardShortcuts.Recorder(L("Toggle PopChat:"), name: .togglePopChat)
             } footer: {
-                Text("If ⌥Space is taken by another app, unbind it there or record a different shortcut.")
+                Text(L("If ⌥Space is taken by another app, unbind it there or record a different shortcut."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -1126,7 +1155,7 @@ struct SettingsView: View {
     private func modelRow(for provider: Provider) -> some View {
         let id = provider.id
         let models = store.knownModels[id] ?? []
-        return editorField("Default model") {
+        return editorField(L("Default model")) {
             HStack(spacing: 6) {
                 TextField("", text: Binding(
                     get: { store.rememberedModel(id) },
@@ -1143,7 +1172,7 @@ struct SettingsView: View {
                 .menuIndicator(.hidden) // the label IS the indicator
                 .fixedSize()
                 .disabled(models.isEmpty)
-                .help(models.isEmpty ? "Fetch the model list first" : "Pick from fetched models")
+                .help(models.isEmpty ? L("Fetch the model list first") : L("Pick from fetched models"))
                 Button {
                     Task { await store.fetchModels(for: id) }
                 } label: {
@@ -1154,7 +1183,7 @@ struct SettingsView: View {
                     }
                 }
                 .fixedSize()
-                .help("Fetch model list from the provider")
+                .help(L("Fetch model list from the provider"))
             }
         }
     }

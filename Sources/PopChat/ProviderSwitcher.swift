@@ -135,7 +135,7 @@ struct ProviderSwitcher: View {
 
     private var providerRail: some View {
         VStack(alignment: .leading, spacing: 1) {
-            columnHeader("Providers")
+            columnHeader(L("Providers"))
             ScrollView {
                 VStack(alignment: .leading, spacing: 1) {
                     ForEach(rail) { provider in
@@ -189,7 +189,7 @@ struct ProviderSwitcher: View {
     }
 
     private var addProviderRow: some View {
-        dimRow(icon: "plus", title: "Add provider…", key: "add") {
+        dimRow(icon: "plus", title: L("Add provider…"), key: "add") {
             close { NotificationCenter.default.post(name: .popChatOpenSettings, object: nil) }
         }
     }
@@ -204,7 +204,7 @@ struct ProviderSwitcher: View {
                     if store.isFetching(previewID) {
                         HStack(spacing: 7) {
                             ProgressView().controlSize(.small).scaleEffect(0.7)
-                            Text("Fetching models…")
+                            Text(L("Fetching models…"))
                                 .font(.system(size: 12))
                                 .foregroundStyle(.secondary)
                         }
@@ -224,7 +224,7 @@ struct ProviderSwitcher: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                     } else if models.isEmpty, !store.isFetching(previewID) {
-                        Text("No models fetched yet")
+                        Text(L("No models fetched yet"))
                             .font(.system(size: 11.5))
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 8)
@@ -261,13 +261,13 @@ struct ProviderSwitcher: View {
                     Image(systemName: "photo")
                         .font(.system(size: 9))
                         .foregroundStyle(.tertiary)
-                        .help("Accepts images")
+                        .help(L("Accepts images"))
                 }
                 if capabilities.files == true {
                     Image(systemName: "paperclip")
                         .font(.system(size: 9))
                         .foregroundStyle(.tertiary)
-                        .help("Takes PDF files directly")
+                        .help(L("Takes PDF files directly"))
                 }
                 if isCurrent {
                     Image(systemName: "checkmark")
@@ -307,14 +307,14 @@ struct ProviderSwitcher: View {
     private var modelHeaderTitle: String {
         let name = previewProvider?.name ?? "Models"
         let count = store.knownModels[previewID]?.count ?? 0
-        return count > 0 ? "\(name) · \(count) models" : name
+        return count > 0 ? "\(name) · " + L("{0} models", "\(count)") : name
     }
 
     // MARK: - Reasoning effort
 
     private var effortColumn: some View {
         VStack(alignment: .leading, spacing: 1) {
-            columnHeader("Effort")
+            columnHeader(L("Effort"))
             ScrollView {
                 VStack(alignment: .leading, spacing: 1) {
                     ForEach(Array(efforts.enumerated()), id: \.element) { index, effort in
@@ -323,7 +323,7 @@ struct ProviderSwitcher: View {
                 }
             }
             .scrollBounceBehavior(.basedOnSize)
-            Text("For \(previewModel)")
+            Text(L("For {0}", previewModel))
                 .font(.system(size: 9.5))
                 .foregroundStyle(.tertiary)
                 .lineLimit(1)
@@ -381,7 +381,7 @@ struct ProviderSwitcher: View {
 
     private func effortLabel(_ effort: String) -> String {
         switch effort {
-        case "xhigh": "Extra High"
+        case "xhigh": L("Extra High")
         default: effort.capitalized
         }
     }
@@ -423,7 +423,7 @@ struct ProviderSwitcher: View {
             close { NotificationCenter.default.post(name: .popChatOpenSettings, object: nil) }
         } label: {
             HStack(spacing: 8) {
-                Text("Manage providers…")
+                Text(L("Manage providers…"))
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 4)

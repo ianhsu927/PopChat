@@ -71,7 +71,7 @@ struct HistoryPopover: View {
             filterRow
             Divider()
             if visible.isEmpty {
-                Text(store.recent.isEmpty ? "No saved chats" : "No matches")
+                Text(store.recent.isEmpty ? L("No saved chats") : L("No matches"))
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
                     .frame(height: Metrics.emptyHeight)
@@ -110,7 +110,7 @@ struct HistoryPopover: View {
                 .foregroundStyle(.secondary)
             KeyRoutingTextField(
                 text: $filter,
-                placeholder: "Search chats…",
+                placeholder: L(FieldPlaceholder.historySearch),
                 focusBump: filterFocusBump,
                 onMoveUp: { moveSelection(-1) },
                 onMoveDown: { moveSelection(1) },
@@ -240,7 +240,7 @@ struct HistoryPopover: View {
                         Image(systemName: "arrow.triangle.branch")
                             .font(.system(size: 10))
                             .foregroundStyle(.secondary)
-                            .help("Forked conversation")
+                            .help(L("Forked conversation"))
                     }
                     Text(meta.title)
                         .font(.system(size: 12.5, weight: isCurrent ? .semibold : .regular))
@@ -258,7 +258,7 @@ struct HistoryPopover: View {
                         }
                         .buttonStyle(.plain)
                         .keyboardShortcut(.delete, modifiers: .command)
-                        .help("Delete chat (⌘⌫)")
+                        .help(L("Delete chat (⌘⌫)"))
                     } else if isCurrent {
                         Image(systemName: "checkmark")
                             .font(.system(size: 10, weight: .semibold))
@@ -405,8 +405,8 @@ struct HistoryPopover: View {
     }
 
     private func groupTitle(for date: Date, calendar: Calendar) -> String {
-        if calendar.isDateInToday(date) { return "Today" }
-        if calendar.isDateInYesterday(date) { return "Yesterday" }
+        if calendar.isDateInToday(date) { return L("Today") }
+        if calendar.isDateInYesterday(date) { return L("Yesterday") }
         if let weekAgo = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: .now)),
            date >= weekAgo {
             return date.formatted(.dateTime.weekday(.wide))

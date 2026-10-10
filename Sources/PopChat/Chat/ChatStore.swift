@@ -153,7 +153,7 @@ final class ChatStore: ObservableObject {
             forkParentID = nil
             forkMessageID = nil
             sharedPrefixCount = 0
-            let notice = "This fork's parent conversation is missing — showing only the messages added after the fork."
+            let notice = L("This fork's parent conversation is missing — showing only the messages added after the fork.")
             if !messages.contains(where: { $0.role == .error && $0.text == notice }) {
                 messages.append(ChatMessage(role: .error, text: notice))
             }
@@ -217,7 +217,7 @@ final class ChatStore: ObservableObject {
                 messages.append(ChatMessage(role: .user, text: text))
                 messages.append(ChatMessage(
                     role: .error,
-                    text: "Unknown shortcut “/\(name)”. Define it in Settings → Slash Commands, or escape the leading slash."
+                    text: L("Unknown shortcut “/{0}”. Define it in Settings → Slash Commands, or escape the leading slash.", name)
                 ))
                 persist()
                 return
@@ -230,7 +230,7 @@ final class ChatStore: ObservableObject {
         // Explicit-warning policy: catch misconfiguration up front, with a pointer to
         // the fix, rather than surfacing an opaque HTTP failure.
         guard let config = providerStore.currentConfig() else {
-            messages.append(ChatMessage(role: .error, text: "No provider selected — open Settings…"))
+            messages.append(ChatMessage(role: .error, text: L("No provider selected — open Settings…")))
             persist()
             return
         }
@@ -238,7 +238,7 @@ final class ChatStore: ObservableObject {
         if config.model.isEmpty {
             messages.append(ChatMessage(
                 role: .error,
-                text: "No model set for \(providerName). Pick one from the model menu (fetch the list first) or Settings."
+                text: L("No model set for {0}. Pick one from the model menu (fetch the list first) or Settings.", providerName)
             ))
             persist()
             return
@@ -248,7 +248,7 @@ final class ChatStore: ObservableObject {
             if !ChatGPTAuth.isSignedIn {
                 messages.append(ChatMessage(
                     role: .error,
-                    text: "Not signed in to ChatGPT. Right-click the menu bar icon → Settings… → Providers → Sign in with ChatGPT."
+                    text: L("Not signed in to ChatGPT. Right-click the menu bar icon → Settings… → Providers → Sign in with ChatGPT.")
                 ))
                 persist()
                 return
@@ -266,7 +266,7 @@ final class ChatStore: ObservableObject {
             if config.apiKey.isEmpty && !isLocal {
                 messages.append(ChatMessage(
                     role: .error,
-                    text: "No API key for \(providerName). Add one in Settings → Providers (right-click the menu bar icon), or pick a configured provider from the model pill above."
+                    text: L("No API key for {0}. Add one in Settings → Providers (right-click the menu bar icon), or pick a configured provider from the model pill above.", providerName)
                 ))
                 persist()
                 return
@@ -386,10 +386,10 @@ final class ChatStore: ObservableObject {
                         capability, supported: false, source: .learned,
                         providerID: sendProviderID, model: config.model
                     )
-                    let noun = capability == .images ? "images" : "PDF files"
+                    let noun = capability == .images ? L("images") : L("PDF files")
                     messages.append(ChatMessage(
                         role: .error,
-                        text: "\(message)\n\nRecorded: \(config.model) didn't accept \(noun) — the composer will warn before sending it \(noun) again. Clear this in Settings → Providers if the rejection was transient."
+                        text: message + "\n\n" + L("Recorded: {0} didn't accept {1} — the composer will warn before sending it {1} again. Clear this in Settings → Providers if the rejection was transient.", config.model, noun)
                     ))
                 }
             }
@@ -652,7 +652,7 @@ final class ChatStore: ObservableObject {
                 } else {
                     // Never silent: a scanned PDF on a text-only path states its
                     // absence instead of contributing an empty block.
-                    textBlocks.append("[File: \(attachment.filename) — a PDF with no extractable text; its content could not be included because this model does not accept PDF files directly]")
+                    textBlocks.append(L("[File: {0} — a PDF with no extractable text; its content could not be included because this model does not accept PDF files directly]", attachment.filename))
                 }
             }
         }
@@ -660,7 +660,7 @@ final class ChatStore: ObservableObject {
         if typedParts.isEmpty {
             return .text(combined)
         }
-        return .parts(typedParts + [.text(combined.isEmpty ? "See the attached file(s)." : combined)])
+        return .parts(typedParts + [.text(combined.isEmpty ? L("See the attached file(s).") : combined)])
     }
 
     /// Resolves the Settings search-engine choice against the active provider,
@@ -870,7 +870,7 @@ final class ChatStore: ObservableObject {
         persist()
         guard let loaded = ConversationStore.loadResolved(id: id) else {
             recent.removeAll { $0.id == id }
-            messages.append(ChatMessage(role: .error, text: "Couldn't load that conversation — its file is missing or corrupt."))
+            messages.append(ChatMessage(role: .error, text: L("Couldn't load that conversation — its file is missing or corrupt.")))
             return
         }
         adopt(loaded)
